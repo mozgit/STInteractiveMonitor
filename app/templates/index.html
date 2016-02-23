@@ -1,0 +1,268 @@
+<!doctype html>
+<head>
+<link type="text/css" rel="stylesheet" href="static/style.css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript" src="static/css-pop.js"></script>
+</head>
+ <body onload="book_plot({{ dm['start_run']}} , {{ dm['end_run'] }} )">    
+
+<div id="STPlot">
+   <div id="container" style="width:50%; height:100%;"></div>
+</div>
+<!--
+<div id="ITPlot">
+   <div id="container" style="width:50%; height:100%;"></div>
+</div>
+-->
+
+<div style="width:100%;height:2%;position:absolute;top:0%;left:0%;text-align:center;">
+        <form  action="/index" method="POST" class=index>
+        <div style="width:23%;height:100%;position:absolute;top:0%;left:10%;">
+            
+                <select name="hist">
+                    <option value="">Choose histogram</option>
+                    {% for h in hist_coll['hist'] %}
+                    <option value="{{ h }}"
+                    {% if dm['hist'] == h %}
+                    selected
+                    {% endif %}>
+                    {{ h }}</option>
+                    {% endfor %}
+                </select>
+
+
+        </div>
+        <div style="width:33%;height:100%;position:absolute;top:0%;left:33%;">
+
+                <select name="prop">
+                    <option value="">Choose colour schema</option>
+                        {% for h in hist_coll['prop'] %}
+                        <option value="{{ h }}"
+                        {% if dm['prop'] == h %}
+                        selected
+                        {% endif %}>
+                        {{ h }}</option>
+                        {% endfor %}
+                </select>
+
+
+        </div>
+        <div style="width:33%;height:100%;position:absolute;top:0%;left:66%;">
+
+              From: <input type="text" name="start_run"
+                        {% if dm['start_run'] != '' %}
+                        value = "{{ dm['start_run'] }}"
+                        {% else %}
+                        value = "0"
+                        {% endif %}>
+              To: <input type="text" name="end_run"
+                        {% if dm['end_run'] != '' %}
+                        value = "{{ dm['end_run'] }}"
+                        {% else %}
+                        value = "10"
+                        {% endif %}>
+              <input type="submit" value="Submit">
+
+        </div>
+        </form>
+
+</div>
+<div style="width:100%;height:98%;position:absolute;top:2%;left:0%;text-align:center;">
+<div style="width:50%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
+    <div style="width:80%;height:10%;position:absolute;top:10%;left:10%;">
+        {% if dm['hist'] %}
+            {% if dm['prop'] %}
+                {% for i in range(0, 100) %}
+                    <span class="dropt" >
+                        <div style="width:1%;height:50%;position:absolute;top:0%;left:{{ i }}%;background-color:{{ collections[['tt_d',dm['hist'],dm['prop']]|join][i|string]['colour'] }};">
+                            <span> {{ collections[['tt_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                        </div>
+                    </span>
+                    {% if i == 0 %}
+                            <span style="height:50%;position:absolute;top:15%;left:0%;z-index: 1;">{{ collections[['tt_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                    {% endif %}
+                    {% if i == 99 %}
+                            <span style="height:50%;position:absolute;top:15%;right:0%;z-index: 1;">{{ collections[['tt_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                    {% endif %}
+                {% endfor %}"
+            {% endif %}
+        {% endif %}
+    </div>
+    <div style="width:100%;height:80%;position:absolute;top:20%;left:0%;">
+        {% for layer in tt %}
+            {% if tt[layer]['layer_info'] %}
+            <div id="TT_layer" align="center" style="
+                                    {% for i in tt[layer]['layer_info'] %}
+                                        {{ i }}:{{ tt[layer]['layer_info'][i] }};
+                                    {% endfor %}">
+                <h1>{{ layer }}</h1>
+                <div style="width:90%;height:80%;position:absolute;top:15%;left:5%;">
+                {% for side in tt[layer] %}
+                    {% if  tt[layer][side]['side_info'] %}
+                        <div id="TT_side" align="center" style="
+                                        {% for i in tt[layer][side]['side_info'] %}
+                                            {{ i }}:{{ tt[layer][side]['side_info'][i] }};
+                                        {% endfor %}" >
+                            {% for sector in tt[layer][side] %}
+                                {% if  tt[layer][side][sector]['div_info'] %}
+                                <a href="/{{ tt[layer][side][sector]['Name'] }}">
+                                <div class="thumbnail" id='TT_bin' style="
+                                    {% for i in tt[layer][side][sector]['div_info'] %}
+                                        {{ i }}:{{ tt[layer][side][sector]['div_info'][i] }};
+                                    {% endfor %}
+                                    {% if dm['hist'] %}
+                                        {% if dm['prop'] %}
+                                            {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
+                                                background-color: {{ tt[layer][side][sector]['Histograms'][dm['hist']]['properties'][dm['prop']] }};
+                                            {% else %}
+                                                background-color: #000000;
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}" 
+                                    {% if dm['hist'] %}
+                                        {% if dm['prop'] %}
+                                            {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
+                                                onmouseover="update_plot({{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }});showAsTT('STPlot');" onmouseout="hideAsTT('STPlot')"
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}> 
+                                            <span id='TT_span_info'>
+                                            <div> {{ tt[layer][side][sector]['Name'] }}  
+                                            {% if dm['hist'] %}
+                                                {% if dm['prop'] %}
+                                                    {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
+                                                    '{{ dm['prop'] }}': {{ tt[layer][side][sector]['Histograms'][dm['hist']]['init_properties'][dm['prop']] }};
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                            </div>
+                                            </span>
+                                            {{ sector }}
+                                            <!--
+                                            {% if dm['hist'] %}
+                                            {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
+                                            <span id='TT_span' >
+                                            <div>
+                                            <h1>Test</h1>
+                                            </div>
+                                            <img  id='TT_image' src="{{ url_for('static', filename = tt[layer][side][sector]['Histograms'][dm['hist']]['plot']) }}"/>
+                                            </span>
+                                            {% endif %}
+                                            {% endif %}
+                                        -->
+                                    </div>
+                                </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div style="width:50%;height:100%;position:absolute;top:0%;left:50%;text-align:center">
+    <div style="width:80%;height:10%;position:absolute;top:10%;left:10%;">
+        {% if dm['hist'] %}
+            {% if dm['prop'] %}
+                {% for i in range(0, 100) %}
+                    <span class="dropt" >
+                        <div style="width:1%;height:50%;position:absolute;top:0%;left:{{ i }}%;background-color:{{ collections[['it_d',dm['hist'],dm['prop']]|join][i|string]['colour'] }};">
+                            <span> {{ collections[['it_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                        </div>
+                    </span>
+                    {% if i == 0 %}
+                            <span style="height:50%;position:absolute;top:15%;left:0%;z-index: 1;">{{ collections[['it_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                    {% endif %}
+                    {% if i == 99 %}
+                            <span style="height:50%;position:absolute;top:15%;right:0%;z-index: 1;">{{ collections[['it_d',dm['hist'],dm['prop']]|join][i|string]['value'] }}</span>
+                    {% endif %}
+                {% endfor %}"
+            {% endif %}
+        {% endif %}
+    </div>
+    <div style="width:100%;height:80%;position:absolute;top:20%;left:0%;">
+        {% for station in it %}
+            {% if it[station]['station_info'] %}
+            <div id="IT_station" align="center" style="
+                                    {% for i in it[station]['station_info'] %}
+                                        {{ i }}:{{ it[station]['station_info'][i] }};
+                                    {% endfor %}">
+                <h1>{{ station }}</h1>
+                {% for side in it[station] %}
+                    {% if  it[station][side]['side_info'] %}
+                        <div id="IT_side" align="center" style="
+                                        {% for i in it[station][side]['side_info'] %}
+                                            {{ i }}:{{ it[station][side]['side_info'][i] }};
+                                        {% endfor %}">
+                        {% for layer in it[station][side] %}
+                            {% if  it[station][side][layer]['layer_info'] %}
+                                <div id="IT_side" align="center" style="
+                                                {% for i in it[station][side][layer]['layer_info'] %}
+                                                    {{ i }}:{{ it[station][side][layer]['layer_info'][i] }};
+                                                {% endfor %}">
+                                {% for sector in it[station][side][layer] %}
+                                    {% if  it[station][side][layer][sector]['div_info'] %}
+                                    <a href="/{{ it[station][side][layer][sector]['Name'] }}">
+                                        <div class="thumbnail" id='IT_bin' style="
+                                            {% for i in it[station][side][layer][sector]['div_info'] %}
+                                                {{ i }}:{{ it[station][side][layer][sector]['div_info'][i] }};
+                                            {% endfor %}
+                                            {% if dm['hist'] %}
+                                                {% if dm['prop'] %}
+                                                    {% if dm['hist'] in it[station][side][layer][sector]['Histograms'] %}
+                                                        background-color: {{ it[station][side][layer][sector]['Histograms'][dm['hist']]['properties'][dm['prop']] }};
+                                                    {% else %}
+                                                        background-color: #000000;
+                                                    {% endif %}
+
+                                                {% endif %}
+                                            {% endif %}"
+                                            {% if dm['hist'] %}
+                                                {% if dm['prop'] %}
+                                                    {% if dm['hist'] in it[station][side][layer][sector]['Histograms']%}
+                                                        onmouseover="update_plot({{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }});showAsIT('STPlot');" onmouseout="hideAsIT('STPlot')"
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}> 
+                                                <span id='IT_span_info'>
+                                                <div> {{ it[station][side][layer][sector]['Name'] }}  
+                                                {% if dm['hist'] %}
+                                                    {% if dm['hist'] in it[station][side][layer][sector]['Histograms'] %}
+                                                        {% if dm['prop'] %}
+                                                            '{{ dm['prop'] }}': {{ it[station][side][layer][sector]['Histograms'][dm['hist']]['init_properties'][dm['prop']]}};
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
+                                                </div>
+                                                </span>
+                                                {{ sector }}
+                                            <!--
+                                            {% if dm['hist'] %}
+                                                {% if dm['hist'] in it[station][side][layer][sector]['Histograms'] %}
+                                                    <span id='IT_span' >
+                                                    <img id='IT_image' src="{{ url_for('static', filename = it[station][side][layer][sector]['Histograms'][dm['hist']]['plot']) }}"/>
+                                                    </span>
+                                                {% endif %}
+                                            {% endif %}
+                                            -->
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+</div>
+</body>
