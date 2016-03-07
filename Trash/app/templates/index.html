@@ -1,10 +1,8 @@
 <!doctype html>
 <head>
 <link type="text/css" rel="stylesheet" href="static/style.css"/>
-<script type="text/javascript" src="static/jquery.min.js"></script>
-<script type="text/javascript" src="static/highcharts.js"></script>
-<script type="text/javascript" src="static/highcharts-more.js"></script>
-<script type="text/javascript" src="static/exporting.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 <script type="text/javascript" src="static/css-pop.js"></script>
 </head>
  <body onload="book_plot({{ existing_runs }} )">    
@@ -51,19 +49,14 @@
 
         </div>
         <div style="width:33%;height:100%;position:absolute;top:0%;left:66%;">
-            <datalist id="all_runs">
-             {% for r in all_runs %}
-              <option>{{ r }}</option>
-             {% endfor %}
-            </datalist> 
 
-              From: <input list="all_runs" name="start_run"
+              From: <input type="text" name="start_run"
                         {% if dm['start_run'] != '' %}
                         value = "{{ dm['start_run'] }}"
                         {% else %}
                         value = "0"
                         {% endif %}>
-              To: <input list="all_runs" name="end_run"
+              To: <input type="text" name="end_run"
                         {% if dm['end_run'] != '' %}
                         value = "{{ dm['end_run'] }}"
                         {% else %}
@@ -130,7 +123,7 @@
                                     {% if dm['hist'] %}
                                         {% if dm['prop'] %}
                                             {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
-                                                onmouseover="update_plot({{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},{{ tt[layer][side][sector]['Name'] }});showAsTT('STPlot');" onmouseout="hideAsTT('STPlot')"
+                                                onmouseover="update_plot({{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }});showAsTT('STPlot');" onmouseout="hideAsTT('STPlot')"
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}> 
@@ -231,7 +224,7 @@
                                             {% if dm['hist'] %}
                                                 {% if dm['prop'] %}
                                                     {% if dm['hist'] in it[station][side][layer][sector]['Histograms']%}
-                                                        onmouseover="update_plot({{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},{{ it[station][side][layer][sector]['Name'] }});showAsIT('STPlot');" onmouseout="hideAsIT('STPlot')"
+                                                        onmouseover="update_plot({{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }});showAsIT('STPlot');" onmouseout="hideAsIT('STPlot')"
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}> 

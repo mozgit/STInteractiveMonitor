@@ -12,6 +12,7 @@ from app import coll_tt_d as tt_d
 from engine.colors.Color_Mapping import *
 from engine.detectors.CreateDetectors import *
 
+
 def save_to_db(or_det, histos):
     for h in or_det:
         try:

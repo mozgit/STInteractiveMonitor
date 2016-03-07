@@ -4,8 +4,8 @@ from GetSTNameFromBin import *
 import pickle
 import datetime
 import random
-import root as R
-f = open('/Users/admin/Documents/ST_Monitor/Mongo_Test_Sandbox/app/NameList.pkl')
+import ROOT as R
+f = open('/Users/ilya/ST_Monitor/Mongo_Test_Sandbox/app/NameList.pkl')
 NameList = pickle.load(f) 
 
 #ss = st_snapshot(run = "1", body = {})
@@ -18,7 +18,7 @@ NameList = pickle.load(f)
         
 random.seed(datetime.datetime.now().microsecond)
 
-for i in range(0, 10):
+for i in range(0, 100):
     for name in NameList['TTNames']:
         st_sector(name = name, run = i, efficiency = random.random(), bias = (random.random()-0.5), width = random.random()/(i+1)).save()
     for name in NameList['ITNames']:
@@ -65,6 +65,6 @@ def ExtractInfo(hist, mode="efficiency"):
         return hist.GetRMS()
     if (mode == "bias"):
         return hist.GetMean()
-    if (mode == "efficiency")
+    if (mode == "efficiency"):
         return hist.GetMean()
     return -1

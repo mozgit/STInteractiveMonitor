@@ -21,13 +21,9 @@ def doallthethings(name, Drawing_Mode, db):
     start_run = Drawing_Mode['start_run']
     end_run = Drawing_Mode['end_run']
     trend = {}
-    err_trend = {}
-    comb_trend = {}
     for i in existing_runs:
         for document in db.st_sector.find({"name":name, "run":i}).limit(1):
             trend[document['run']] = document[Drawing_Mode['hist']]
-            comb_trend[document['run']] = [document[Drawing_Mode['hist']],document["err_"+Drawing_Mode['hist']]]
-            err_trend[document['run']] = [document[Drawing_Mode['hist']]-document["err_"+Drawing_Mode['hist']],document[Drawing_Mode['hist']]+document["err_"+Drawing_Mode['hist']]]
         #print str(document['run'])+": "+str(document[Drawing_Mode['hist']])
     if Drawing_Mode['prop'] == 'mean':
         if float(len(trend.values()))!=0:
@@ -60,7 +56,7 @@ def doallthethings(name, Drawing_Mode, db):
                                        "plot":path_to_the_plot,
                                        "properties":{Drawing_Mode['prop']:found_value},
                                        "init_properties":{Drawing_Mode['prop']:found_value},
-                                       "hist_as_dict":{'runs':comb_trend.keys(),'values':trend.values(),'errors':err_trend.values()}
+                                       "hist_as_dict":{'runs':trend.keys(),'values':trend.values()}
                                        }}, 'is_masked':False}
 
 def mf_wrap(args):

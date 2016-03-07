@@ -8,13 +8,12 @@ import pickle
 import sys
 import json
 from app.models import *
-#from app.auth import *
+from app.auth import *
 from app import histos, collection, coll_it_d, coll_tt_d, Drawing_mode
 from app import db
 from models import st_sector
 import os
 from Manage_DB.manage_db import find_existing_runs
-from Manage_DB.manage_db import list_runs
 
 
 # Load the list of unique sector names
@@ -25,6 +24,12 @@ NameList = pickle.load(f)
 @app.route("/",methods = ('GET', 'POST'))
 @app.route("/index",methods = ('GET', 'POST'))
 def hello():
+    global Drawing_mode
+    global coll_tt_d
+    global coll_it_d
+    global g_tt_d
+    global g_it_d
+    global collection
     global histos
 
     if request.method == 'POST':
@@ -34,19 +39,11 @@ def hello():
         - Color schema 
         - Run range
         """
-        Drawing_mode = {'hist':'', 'prop':'', 'start_run':'', 'end_run':''}
         for m in ['hist', 'prop', 'start_run', 'end_run']:
             try:
                 Drawing_mode[m]=request.form[m]
-                if request.form[m] == "":
-                    return redirect(url_for('hello'))
-                if m in ['start_run', 'end_run']:
-                    try:
-                        a = int(request.form[m])
-                    except:
-                        return redirect(url_for('hello'))
             except:
-                return redirect(url_for('hello'))
+                pass
         """
         After drawing mode configured, shapshots need to be updated.
         snapshot_tt = Update_tt(Drawing_mode)
@@ -59,12 +56,10 @@ def hello():
         snapshot_it = create_IT(Drawing_mode)
         collection = Normalize_Colours(snapshot_tt, snapshot_it)
         existing_runs = find_existing_runs(int(Drawing_mode['start_run']),int(Drawing_mode['end_run']))
-        return render_template('index.html', tt = snapshot_tt, it=snapshot_it, dm = Drawing_mode, collections = collection, hist_coll = histos,  existing_runs = existing_runs, all_runs = list_runs())
-    Drawing_mode = {'hist':'', 'prop':'', 'start_run':'', 'end_run':''}
+        return render_template('index.html', tt = snapshot_tt, it=snapshot_it, dm = Drawing_mode, collections = collection, hist_coll = histos,  existing_runs = existing_runs)
     suppl_dm = {'hist':'efficiency', 'prop':'mean', 'start_run':0, 'end_run':5}
     existing_runs = find_existing_runs(int(suppl_dm['start_run']),int(suppl_dm['end_run']))
-    collection = {}
-    return render_template('index.html', dm = Drawing_mode, collections = collection, hist_coll = histos, tt = create_TT(suppl_dm), it = create_IT(suppl_dm), existing_runs = existing_runs, all_runs = list_runs())
+    return render_template('index.html', dm = Drawing_mode, collections = collection, hist_coll = histos, tt = create_TT(suppl_dm), it = create_IT(suppl_dm), existing_runs = existing_runs)
 
 
 

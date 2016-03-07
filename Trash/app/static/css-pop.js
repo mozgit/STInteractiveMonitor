@@ -25,19 +25,17 @@ function book_plot( existing_runs, name ) {
            name = typeof name !== 'undefined' ? name : "Just histogram";
            var xVals = [];
            var yVals = [];
-           var yErrs = [];
 
            for (var i in existing_runs) {
               xVals.push(existing_runs[i].toString());
               yVals.push(0);
-              yErrs.push(0);
             }
            console.log(xVals);
            console.log(yVals);
-           console.log(yErrs);
            $('#container').highcharts({
             chart: {
             	animation: false,
+                type: 'column'
             },
             title: {
                 text: name
@@ -51,24 +49,20 @@ function book_plot( existing_runs, name ) {
                 }
             },
             series: [{
-                data: yVals,
-                type: 'spline'
-            },
-            {
-                data: yErrs,
-                type: 'errorbar'
+                data: yVals
             }]
         });
 };
 
 
-function make_plot(xVals, yVals, yErrs, name ) { 
+function make_plot(xVals, yVals, name ) { 
            name = typeof name !== 'undefined' ? name : "Just histogram";
            xVals = typeof xVals !== 'undefined' ? xVals : [1, 2, 3];
            yVals = typeof yVals !== 'undefined' ? yVals : [54, 55, 53];
            $('#container').highcharts({
             chart: {
             	animation: false,
+                type: 'column'
             },
             title: {
                 text: name
@@ -82,23 +76,16 @@ function make_plot(xVals, yVals, yErrs, name ) {
                 }
             },
             series: [{
-                data: yVals,
-                type: 'spline'
-            },
-            {
-                data: yErrs,
-                type: 'errorbar'
+                data: yVals
             }]
         });
 };
 
-function update_plot(yVals, yErrs, name) { 
-  var chart = $('#container').highcharts();
-  chart.setTitle({text: name});
-  for (i = 0; i < chart.series[0].data.length; i++) { 
-    chart.series[0].data[i].update(yVals[i]);
-    chart.series[1].data[i].update(yErrs[i]);
-  }
+function update_plot(yVals) { 
+	var chart = $('#container').highcharts();
+	for (i = 0; i < chart.series[0].data.length; i++) { 
+		chart.series[0].data[i].update(yVals[i]);
+	}
 };
 
 

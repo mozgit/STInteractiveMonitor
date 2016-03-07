@@ -3,7 +3,7 @@ from models import st_sector
 import pickle
 import datetime
 import random
-f = open('/Users/admin/Documents/ST_Monitor/Mongo_Test_Sandbox/app/NameList.pkl')
+f = open('/Users/ilya/ST_Monitor/Mongo_Test_Sandbox/app/NameList.pkl')
 NameList = pickle.load(f) 
 
 #ss = st_snapshot(run = "1", body = {})

@@ -80,11 +80,8 @@ class st_sector(db.Document):
     run = db.IntField(required=True)
     name = db.StringField(max_length=255, required=True)
     efficiency = db.FloatField()
-    err_efficiency = db.FloatField()
     bias = db.FloatField()
-    err_bias = db.FloatField()
     width = db.FloatField()
-    err_width = db.FloatField()
     #residuals = db.StringField(max_length=255, required=True, unique=True)
     meta = {
         'indexes':['run','name']
@@ -96,9 +93,6 @@ class st_sector(db.Document):
         self.run = str(run_number)
         self.name = "TestName"
         self.efficiency = run_number/100
-        self.err_efficiency = run_number/1000
         self.bias = run_number/100
-        self.err_bias = run_number/1000
         self.width = run_number/100
-        self.err_width = run_number/1000
         return self
