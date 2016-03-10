@@ -1,0 +1,449 @@
+<!doctype html>
+<head>
+<link type="text/css" rel="stylesheet" href="static/style.css"/>
+<script type="text/javascript" src="static/jquery.min.js"></script>
+<script type="text/javascript" src="static/highcharts.js"></script>
+<script type="text/javascript" src="static/highcharts-more.js"></script>
+<script type="text/javascript" src="static/exporting.js"></script>
+<script type="text/javascript" src="static/css-pop.js"></script>
+<script type="text/javascript" src="static/Colour.js"></script>
+
+<script type="text/javascript">
+
+  var map;
+  var existing_runs;
+  var all_runs = [];
+  var run_range=[0, 0];
+  var hist='efficiency';
+  var prop='mean';
+  var tt_min=0;
+  var tt_max=1;
+  var it_min=0;
+  var it_max=1;
+  var temp_limits = [0,0];
+
+
+    //'/rounding/<query1>____<query2>.json'
+  var tt_rounding_request = new XMLHttpRequest();
+  tt_rounding_request.onreadystatechange = function(response) {
+  if (tt_rounding_request.readyState === 4) {
+      if (tt_rounding_request.status === 200) {
+      //console.log(request.responseText);
+      tt_min = parseFloat(JSON.parse(tt_rounding_request.responseText)[0]);
+      tt_max = parseFloat(JSON.parse(tt_rounding_request.responseText)[1]);
+      document.getElementById('min_tt').value = JSON.parse(tt_rounding_request.responseText)[0];
+      document.getElementById('max_tt').value = JSON.parse(tt_rounding_request.responseText)[1];
+      }
+    }
+  };
+
+  var it_rounding_request = new XMLHttpRequest();
+  it_rounding_request.onreadystatechange = function(response) {
+  if (it_rounding_request.readyState === 4) {
+      if (it_rounding_request.status === 200) {
+      //console.log(request.responseText);
+      it_min = parseFloat(JSON.parse(it_rounding_request.responseText)[0]);
+      it_max = parseFloat(JSON.parse(it_rounding_request.responseText)[1]);
+      document.getElementById('min_it').value = JSON.parse(it_rounding_request.responseText)[0];
+      document.getElementById('max_it').value = JSON.parse(it_rounding_request.responseText)[1];
+      }
+    }
+  };
+
+
+
+  var request = new XMLHttpRequest();
+
+  request.onreadystatechange = function(response) {
+  if (request.readyState === 4) {
+      if (request.status === 200) {
+      //console.log(request.responseText);
+      map = JSON.parse(request.responseText);
+      update_limits();
+      update_colors();
+      }
+    }
+  };
+  var onload_request = new XMLHttpRequest();
+
+  onload_request.onreadystatechange = function(response) {
+  if (onload_request.readyState === 4) {
+      if (onload_request.status === 200) {
+      // Parse the JSON
+      console.log(JSON.parse(onload_request.responseText));
+      jsonOptions = JSON.parse(onload_request.responseText);
+      options = '';
+      var last_run;
+      jsonOptions.forEach(function(item) {
+              // Create a new <option> element.
+              var option = "<option value ='"+item+"'>"+item.toString()+"</option>"
+              options = options + option;
+              last_run = item;
+              all_runs.push(item);
+            });
+       document.getElementById('end_run').innerHTML = options;
+       document.getElementById('start_run').innerHTML = options;
+       document.getElementById('all_runs').innerHTML = options;
+       run_range[0] = last_run;
+       document.getElementById('start_run').value = last_run;
+       run_range[1] = last_run;
+       document.getElementById('end_run').value = last_run;
+       
+       existing_runs=[last_run]
+       book_plot(existing_runs);
+       update_limits();
+       update_colors();
+       request.open('GET', 'results/'+run_range[0]+'____'+run_range[1]+'.json', true); request.send();
+      }
+    }
+  };
+
+
+  var existing_runs_request = new XMLHttpRequest();
+
+  existing_runs_request.onreadystatechange = function(response) {
+  if (existing_runs_request.readyState === 4) {
+      if (existing_runs_request.status === 200) {
+      console.log(JSON.parse(existing_runs_request.responseText));
+      existing_runs = JSON.parse(existing_runs_request.responseText);
+      }
+    }
+  };
+
+function update_runs(){
+      run_range[0] = document.getElementById('start_run').value;
+      run_range[1] = document.getElementById('end_run').value;
+      existing_runs_request.open('GET', 'existing_runs/'+run_range[0]+'____'+run_range[1]+'.json', true); 
+      existing_runs_request.send();
+      request.open('GET', 'results/'+run_range[0]+'____'+run_range[1]+'.json', true); request.send();
+
+}
+
+function update_limits(){
+    tt_max = -1000;
+    tt_min = 1000;
+    it_max = -1000;
+    it_min = 1000;    
+    for (var st_id in map){
+        if (st_id.indexOf('TT') == 0){
+            console.log(st_id);
+            if (map[st_id]['stats'][hist.toString()][prop.toString()]>tt_max){
+                tt_max = map[st_id]['stats'][hist][prop];
+            }
+            if (map[st_id]['stats'][hist][prop]<tt_min){
+                tt_min = map[st_id]['stats'][hist][prop];
+            }
+        }
+        if (st_id.indexOf('IT') == 0){
+            if (map[st_id]['stats'][hist][prop]>it_max){
+                it_max = map[st_id]['stats'][hist][prop];
+            }
+            if (map[st_id]['stats'][hist][prop]<it_min){
+                it_min = map[st_id]['stats'][hist][prop];
+            }
+        }        
+    }
+    //console.log('tt_min: '+tt_min.toString()+' tt_max: '+tt_max.toString());
+    tt_rounding_request.open('GET', '/rounding/'+tt_min+'____'+tt_max+'.json', true); tt_rounding_request.send();
+    it_rounding_request.open('GET', '/rounding/'+it_min+'____'+it_max+'.json', true); it_rounding_request.send();
+    //it_rounding_request.open('GET', '/rounding/'+it_min.toString()+'____'+it_max.toString()+'.json', true); it_rounding_request.send()
+
+}
+
+function update_colors(){
+    for (var st_id in map)
+    {   
+
+        if (map[st_id]['stats'][hist][prop] == "empty")
+        {
+            //if (st_id.indexOf('TT') == 0){
+            document.getElementById(st_id).style.backgroundColor='black';
+            //continue;
+        //}
+        }
+        if ((map[st_id]['stats'][hist][prop] < tt_min)||(map[st_id]['stats'][hist][prop] > tt_max))
+        {
+            //if (st_id.indexOf('TT') == 0){
+            document.getElementById(st_id).style.backgroundColor='white';
+            continue;
+        //}
+        }
+        if (st_id.indexOf('TT') == 0){
+            var min = tt_min;
+            var max = tt_max;
+            var span_info_prefix = 'TT_span_info_';
+        }
+        else{
+            var min = it_min;
+            var max = it_max;
+            var span_info_prefix = 'IT_span_info_';
+        }
+        // (value-limits[0])/(limits[1]-limits[0])
+        var color_code = (map[st_id]['stats'][hist][prop]-min)/(max-min);
+        var color = new HSLColour(color_code*240, 100, 50).getRGB();
+        var color_code = "rgb("+Math.round(color['r'])+","+Math.round(color['g'])+","+Math.round(color['b'])+")";
+        document.getElementById(st_id).style.backgroundColor=color_code;    
+        if (hist =='efficiency'){
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString();
+        }
+        else{
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString()+" mm";
+        }
+        
+    }
+    for (var i = 0; i<100;i++){
+        var color = new HSLColour(i*2.4, 100, 50).getRGB();
+        var color_code = "rgb("+Math.round(color['r'])+","+Math.round(color['g'])+","+Math.round(color['b'])+")";
+        document.getElementById('tt_'+i.toString()).style.backgroundColor=color_code;
+        document.getElementById('span_tt_'+i.toString()).innerHTML= round_tt_val(eval(i*(tt_max-tt_min)/100+tt_min));
+        document.getElementById('it_'+i.toString()).style.backgroundColor=color_code;
+        document.getElementById('span_it_'+i.toString()).innerHTML= round_it_val(eval(i*(it_max-it_min)/100+it_min));        
+        //console.log("["+tt_min.toString()+", "+tt_max.toString()+"] "+i.toString()+"  ->  "+eval(i*(tt_max-tt_min)/100+tt_min).toString());
+        }
+}
+
+function round_tt_val(tt_val){
+    var min_tt_len = document.getElementById('min_tt').value.toString().length;
+    var max_tt_len = document.getElementById('max_tt').value.toString().length;
+    var len = Math.max(min_tt_len, max_tt_len);
+    var tenth = Math.pow(10, len);
+    return  Math.round(tt_val* tenth)/tenth;
+}
+
+function round_it_val(it_val){
+    var min_it_len = document.getElementById('min_it').value.toString().length;
+    var max_it_len = document.getElementById('max_it').value.toString().length;
+    var len = Math.max(min_it_len, max_it_len);
+    var tenth = Math.pow(10, len);
+    return  Math.round(it_val* tenth)/tenth;
+}
+
+
+function update_hist(){
+    hist = document.getElementById('hist').value;
+    update_limits();
+    update_colors();
+}
+
+function update_prop(){
+    prop = document.getElementById('prop').value;
+    update_limits();
+    update_colors();
+}
+
+function update_end_run(){
+    if (document.getElementById('start_run').value>document.getElementById('end_run').value){
+        document.getElementById('end_run').value=document.getElementById('start_run').value;
+    }
+}
+
+function update_start_run(){
+    var options = "";
+    for (item in all_runs){
+        if (document.getElementById('end_run').value>=item){
+            var option = "<option value ='"+item+"'>"+item.toString()+"</option>"
+            options = options + option;
+            last_run = item;
+        }
+    }
+    document.getElementById('start_run').innerHTML = options;
+    document.getElementById('start_run').value = last_run;
+}
+
+</script>
+</head>
+ <body onload="onload_request.open('GET', 'all_runs/all_runs.json', true);onload_request.send();">    
+
+
+<datalist id="all_runs"></datalist> 
+<div id="STPlot">
+   <div id="container" style="width:45%; height:100%;"></div>
+</div>
+
+<div style="width:10%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
+        <div style="width:100%;position:absolute;top:0%;left:00%;">
+                <select id="hist" onchange="update_hist()">
+                    <option value="efficiency">efficiency</option>
+                    <option value="bias">bias</option>
+                    <option value="width">width</option>
+                </select>
+        </div>
+        <div style="width:100%;position:absolute;top:5%;left:0%;">
+                <select id="prop" onchange="update_prop()">
+                    <option value="mean">mean</option>
+                    <option value="min">min</option>
+                    <option value="max">max</option>
+                    <!--<option value="last">last</option>-->
+                </select>
+        </div>
+        
+        <div style="width:100%;position:absolute;top:10%;left:0%;">
+            <!--<datalist id="all_runs"></datalist> -->
+              From: <select id="start_run" onchange="update_end_run()"></select>
+        </div>
+        <div style="width:100%;position:absolute;top:15%;left:0%;">
+              To: <select id="end_run" onchange="update_start_run()"></select>              
+        </div>
+        <div style="width:100%;position:absolute;top:20%;left:0%;">
+            <input type="submit" onclick="update_runs()">
+        </div>
+        >
+</div>
+<div style="width:90%;height:100%;position:absolute;top:0%;left:10%;text-align:center;">
+<div style="width:50%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
+    <div style="width:10%;position:absolute;top:0%;left:0%;">
+        <input type="text" id="min_tt" style="width:90%;">
+    </div>
+    <div style="width:80%;height:10%;position:absolute;top:0%;left:10%;">
+                {% for i in range(0, 100) %}
+                    <span class="dropt" >
+                        <div style="width:1%;height:25%;position:absolute;top:0%;left:{{ i }}%;" id = "tt_{{ i }}">
+                            <span id="span_tt_{{ i }}">Hi!</span>
+                        </div>
+                    </span>
+                {% endfor %}"
+    </div>
+    <div style="width:10%;height:10%;position:absolute;top:0%;left:90%;">
+        <input type="text" id="max_tt" style="width:90%;">
+    </div>
+    <div style="width:100%;height:90%;position:absolute;top:10%;left:0%;">
+        {% for layer in tt %}
+            {% if tt[layer]['layer_info'] %}
+            <div id="TT_layer" align="center" style="
+                                    {% for i in tt[layer]['layer_info'] %}
+                                        {{ i }}:{{ tt[layer]['layer_info'][i] }};
+                                    {% endfor %}">
+                <div style="width:100%;height:15%;position:absolute;top:0;left:0%;">
+                <h2>{{ layer }}</h2>
+                </div>
+                <div style="width:90%;height:80%;position:absolute;top:15%;left:5%;">
+                {% for side in tt[layer] %}
+                    {% if  tt[layer][side]['side_info'] %}
+                        <div id="TT_side" align="center" style="
+                                        {% for i in tt[layer][side]['side_info'] %}
+                                            {{ i }}:{{ tt[layer][side]['side_info'][i] }};
+                                        {% endfor %}" >
+                            {% for sector in tt[layer][side] %}
+                                {% if  tt[layer][side][sector]['div_info'] %}
+                                <a href="/{{ tt[layer][side][sector]['Name'] }}">
+                                <div class="thumbnail" id={{ tt[layer][side][sector]['Name'] }} style="
+                                    {% for i in tt[layer][side][sector]['div_info'] %}
+                                        {{ i }}:{{ tt[layer][side][sector]['div_info'][i] }};
+                                    {% endfor %}" 
+                                     onmouseover="update_plot_lite({{ tt[layer][side][sector]['Name'] }});showAsTT_lite('STPlot');" onmouseout="hideAsTT_lite('STPlot')"> 
+                                    <span id='TT_span_info' style="left:15%;top:5%">
+                                    <div id='TT_span_info_{{ tt[layer][side][sector]["Name"] }}'> {{ tt[layer][side][sector]['Name'] }}  
+                                    </div>
+                                    </span>
+                                    {{ sector }}
+                                </div>
+                                </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div style="width:50%;height:100%;position:absolute;top:0%;left:50%;text-align:center">
+    <div style="width:10%;position:absolute;top:0%;left:0%;">
+        <input type="text" id="min_it" style="width:90%;">
+    </div>
+    <div style="width:80%;height:10%;position:absolute;top:0%;left:10%;">
+                {% for i in range(0, 100) %}
+                    <span class="dropt" >
+                        <div style="width:1%;height:25%;position:absolute;top:0%;left:{{ i }}%;" id = "it_{{ i }}">
+                            <span id="span_it_{{ i }}">Hi!</span>
+                        </div>
+                    </span>
+                {% endfor %}"
+    </div>
+    <div style="width:10%;height:10%;position:absolute;top:0%;left:90%;">
+        <input type="text" id="max_it" style="width:90%;">
+    </div>
+    <div style="width:100%;height:90%;position:absolute;top:10%;left:0%;">
+        {% for station in it %}
+            {% if it[station]['station_info'] %}
+            <div id="IT_station" align="center" style="
+                                    {% for i in it[station]['station_info'] %}
+                                        {{ i }}:{{ it[station]['station_info'][i] }};
+                                    {% endfor %}">
+                <h1>{{ station }}</h1>
+                {% for side in it[station] %}
+                    {% if  it[station][side]['side_info'] %}
+                        <div id="IT_side" align="center" style="
+                                        {% for i in it[station][side]['side_info'] %}
+                                            {{ i }}:{{ it[station][side]['side_info'][i] }};
+                                        {% endfor %}">
+                        {% for layer in it[station][side] %}
+                            {% if  it[station][side][layer]['layer_info'] %}
+                                <div id="IT_side" align="center" style="
+                                                {% for i in it[station][side][layer]['layer_info'] %}
+                                                    {{ i }}:{{ it[station][side][layer]['layer_info'][i] }};
+                                                {% endfor %}">
+                                {% for sector in it[station][side][layer] %}
+                                    {% if  it[station][side][layer][sector]['div_info'] %}
+                                    <a href="/{{ it[station][side][layer][sector]['Name'] }}">
+                                        <div class="thumbnail" id={{ it[station][side][layer][sector]['Name'] }} style="
+                                            {% for i in it[station][side][layer][sector]['div_info'] %}
+                                                {{ i }}:{{ it[station][side][layer][sector]['div_info'][i] }};
+                                            {% endfor %}"
+                                            onmouseover="update_plot_lite({{ it[station][side][layer][sector]['Name'] }});showAsIT_lite('STPlot');" onmouseout="hideAsIT_lite('STPlot')"> 
+                                                <span id='IT_span_info' style="left:55%;top:5%">
+                                                <div id='IT_span_info_{{ it[station][side][layer][sector]["Name"] }}'> 
+                                                    {{ it[station][side][layer][sector]['Name'] }}  
+                                                </div>
+                                                </span>
+                                                {{ sector }}
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+$("#min_tt").keyup(function(event){
+    if(event.keyCode == 13){
+        tt_min = $("#min_tt").val();
+        update_colors();
+    }
+}); 
+
+$("#max_tt").keyup(function(event){
+    if(event.keyCode == 13){
+        tt_max = $("#max_tt").val();
+        update_colors();
+    }
+});
+
+$("#min_it").keyup(function(event){
+    if(event.keyCode == 13){
+        it_min = $("#min_it").val();
+        update_colors();
+    }
+}); 
+
+$("#max_it").keyup(function(event){
+    if(event.keyCode == 13){
+        it_max = $("#max_it").val();
+        update_colors();
+    }
+});
+</script>
+
+</body>
+

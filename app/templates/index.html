@@ -114,7 +114,7 @@
                             {% for sector in tt[layer][side] %}
                                 {% if  tt[layer][side][sector]['div_info'] %}
                                 <a href="/{{ tt[layer][side][sector]['Name'] }}">
-                                <div class="thumbnail" id='TT_bin' style="
+                                <div class="thumbnail" id={{ tt[layer][side][sector]['Name'] }} style="
                                     {% for i in tt[layer][side][sector]['div_info'] %}
                                         {{ i }}:{{ tt[layer][side][sector]['div_info'][i] }};
                                     {% endfor %}
@@ -130,7 +130,7 @@
                                     {% if dm['hist'] %}
                                         {% if dm['prop'] %}
                                             {% if dm['hist'] in tt[layer][side][sector]['Histograms']%}
-                                                onmouseover="update_plot({{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},{{ tt[layer][side][sector]['Name'] }});showAsTT('STPlot');" onmouseout="hideAsTT('STPlot')"
+                                                onmouseover="update_plot({{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ tt[layer][side][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},'{{ dm['hist']+' of '+tt[layer][side][sector]['Name'] }}');showAsTT('STPlot');" onmouseout="hideAsTT('STPlot')"
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}> 
@@ -214,7 +214,7 @@
                                 {% for sector in it[station][side][layer] %}
                                     {% if  it[station][side][layer][sector]['div_info'] %}
                                     <a href="/{{ it[station][side][layer][sector]['Name'] }}">
-                                        <div class="thumbnail" id='IT_bin' style="
+                                        <div class="thumbnail" id={{ it[station][side][layer][sector]['Name'] }} style="
                                             {% for i in it[station][side][layer][sector]['div_info'] %}
                                                 {{ i }}:{{ it[station][side][layer][sector]['div_info'][i] }};
                                             {% endfor %}
@@ -231,7 +231,7 @@
                                             {% if dm['hist'] %}
                                                 {% if dm['prop'] %}
                                                     {% if dm['hist'] in it[station][side][layer][sector]['Histograms']%}
-                                                        onmouseover="update_plot({{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},{{ it[station][side][layer][sector]['Name'] }});showAsIT('STPlot');" onmouseout="hideAsIT('STPlot')"
+                                                        onmouseover="update_plot({{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['values'] }},{{ it[station][side][layer][sector]['Histograms'][dm['hist']]['hist_as_dict']['errors'] }},'{{ dm['hist']+' of '+it[station][side][layer][sector]['Name'] }}');showAsIT('STPlot');" onmouseout="hideAsIT('STPlot')"
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}> 

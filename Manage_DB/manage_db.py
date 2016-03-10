@@ -27,10 +27,12 @@ def fill_random(nNentries=10):
             Known_runs = pickle.load(f)
         except:
             Known_runs= []
-        Known_runs.append(i)
+        if i not in Known_runs:
+            Known_runs.append(i)
+
     
         with open('Known_runs.pkl', 'wb') as basket:
-            pickle.dump(Known_runs, basket)
+            pickle.dump(sorted(Known_runs), basket)
     return True
 
 def print_content():
@@ -97,6 +99,7 @@ def list_runs():
     #May should be a better way to search for it...
     f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/Manage_DB/Known_runs.pkl')
     Known_runs = pickle.load(f)
+    print Known_runs
     return Known_runs
 
 if __name__ == "__main__":
@@ -110,7 +113,7 @@ if __name__ == "__main__":
     #add_run(2, "/Users/ilya/TempData/2.root")    
     #add_run(3, "/Users/ilya/TempData/3.root")
     #add_run(200, "/Users/ilya/TempData/Brunel-1000ev-histos.root")
-    fill_random(10)
+    fill_random(100)
     #print find_existing_runs(0, 6)
 
 

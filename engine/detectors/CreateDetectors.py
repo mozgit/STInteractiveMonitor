@@ -136,14 +136,78 @@ def create_IT(Drawing_Mode):
     return IT
 
 
+def get_info_lite(existing_runs):
+    #Create dictionary:
+    #{<sector_name>:{eff:[]
+    #                err_eff:[]
+    #                mean:[]
+    #                err_mean:[]
+    #                width:[]
+    #                err_width:[]}
+    #}
+    client = connect('st_db')
+    db = client.st_db
+    f = open('engine/NameList.pkl')
+    variables = ['width', 'bias', 'efficiency']
+    NameList = pickle.load(f) 
+    summary = {}
+    for det in NameList:
+        print det
+        for s in NameList[det]:
+            print s
+            summary[s]={'stats':{}}
+            for v in variables:
+                summary[s][v]=[]
+                summary[s]["err_"+v]=[]
+                summary[s]['stats'][v]={}
+            for i in existing_runs:
+                for document in db.st_sector.find({"name":s, "run":i}).limit(1):
+                    for v in variables:
+                        val = document[v]
+                        err = document['err_'+v]
+                        summary[s][v].append(val)
+                        summary[s]['err_'+v].append([val-err, val+err])
+            for v in variables:
+                if len(summary[s][v])>0:
+                    summary[s]['stats'][v]['mean']=float(sum(summary[s][v]))/float(len(summary[s][v]))
+                    summary[s]['stats'][v]['min']=float(min(summary[s][v]))
+                    summary[s]['stats'][v]['max']=float(max(summary[s][v]))
+                else:
+                    summary[s]['stats'][v]['mean']="empty"
+                    summary[s]['stats'][v]['min']="empty"
+                    summary[s]['stats'][v]['max']="empty"
+    print json.dumps(summary)
+    return summary
 
 
+def create_TT_lite():
+    TT = {'dtype':'TT'}
+    layer = ['TTaU','TTaX','TTbV','TTbX']
+    side = ['RegionA','RegionB','RegionC']
+    for l in layer:
+        TT[l]={'layer_info':TT_layer_info(l)}
+        for si in side:
+            TT[l][si]={'side_info': TT_side_info(l,si)}
+            for s in TT_reg_len(l,si):
+                TT[l][si][str(s)] =  {'Name':l+si+'Sector'+str(s)}
+                TT[l][si][str(s)]['div_info'] = TT_div_info(l,si,s)
+                    #print a+r+'Sector'+str(s)
+    return TT
 
 
-
-
-
-
-
-
+def create_IT_lite():
+    IT = {'dtype':'IT'}
+    station = ['IT1','IT2','IT3']
+    side = ['ASide','CSide','Bottom','Top']
+    layer = ['X1','X2','U','V']
+    for st in station:
+        IT[st]={'station_info':IT_station_info(st)}
+        for s in side:
+            IT[st][s]= {'side_info':IT_side_info(st,s)}
+            for l in layer:
+                IT[st][s][l]={'layer_info':IT_layer_info(st,s,l)}
+                for n in range(1,8):
+                    IT[st][s][l][str(n)] = {'Name':st+s+l+'Sector'+str(n)}
+                    IT[st][s][l][str(n)]['div_info'] = IT_div_info(st,s,l,n)
+    return IT
 

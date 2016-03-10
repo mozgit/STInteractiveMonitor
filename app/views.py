@@ -1,6 +1,6 @@
 from app import app
-from flask import render_template
-from flask import abort, redirect, url_for, request, flash
+from flask import *
+from json import dumps as json_dump
 from engine.colors.Color_Mapping import *
 from engine.detectors.CreateDetectors import *
 from werkzeug import secure_filename
@@ -15,7 +15,6 @@ from models import st_sector
 import os
 from Manage_DB.manage_db import find_existing_runs
 from Manage_DB.manage_db import list_runs
-
 
 # Load the list of unique sector names
 f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/engine/NameList.pkl')
@@ -66,6 +65,32 @@ def hello():
     collection = {}
     return render_template('index.html', dm = Drawing_mode, collections = collection, hist_coll = histos, tt = create_TT(suppl_dm), it = create_IT(suppl_dm), existing_runs = existing_runs, all_runs = list_runs())
 
+#@app.route("/",methods = ('GET', 'POST'))
+@app.route("/test",methods = ('GET', 'POST'))
+#@app.route("/index",methods = ('GET', 'POST'))
+def hello_lite():
+    global histos
+    return render_template('test.html', tt = create_TT_lite(), it = create_IT_lite())
+
+@app.route('/rounding/<query1>____<query2>.json')
+def round_json(query1,query2):
+    interval =smart_interval(float(query1),float(query2),2)
+    print [str(interval[0]),str(interval[1])]
+    return Response(json_dump([str(interval[0]),str(interval[1])]), mimetype='application/json')
+
+@app.route('/results/<query1>____<query2>.json')
+def s_json(query1, query2):
+    existing_runs=find_existing_runs(int(query1),int(query2))
+    return Response(json_dump(get_info_lite(existing_runs)), mimetype='application/json')
+    #return Response(json_dump({'p_names':p_names}), mimetype='application/json')
+
+@app.route('/all_runs/<query>.json')
+def ar_json(query):
+    return Response(json_dump(list_runs()), mimetype='application/json')
+
+@app.route('/existing_runs/<query1>____<query2>.json')
+def er_json(query1, query2):
+        return Response(json_dump(find_existing_runs(int(query1),int(query2))), mimetype='application/json')
 
 
 @app.route("/<d>",methods = ('GET', 'POST'))

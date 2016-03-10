@@ -17,8 +17,27 @@ function showAsIT(div_id) {
 function showAsTT(div_id) {
   var el = document.getElementById(div_id);
   el.style.left ='50%';
+  el.style.width ='45%';
+  el.style.height ='100%';
+  el.style.top ='0%';
   if ( el.style.display == 'none' ) { el.style.display = 'block';}
 }
+
+function showAsIT_lite(div_id) {
+  var el = document.getElementById(div_id);
+  el.style.left ='10%';
+  if ( el.style.display == 'none' ) { el.style.display = 'block';}
+}
+
+function showAsTT_lite(div_id) {
+  var el = document.getElementById(div_id);
+  el.style.left ='55%';
+  el.style.width ='45%';
+  el.style.height ='100%';
+  el.style.top ='0%';
+  if ( el.style.display == 'none' ) { el.style.display = 'block';}
+}
+
 
 
 function book_plot( existing_runs, name ) { 
@@ -32,9 +51,9 @@ function book_plot( existing_runs, name ) {
               yVals.push(0);
               yErrs.push(0);
             }
-           console.log(xVals);
-           console.log(yVals);
-           console.log(yErrs);
+           //console.log(xVals);
+           //console.log(yVals);
+           //console.log(yErrs);
            $('#container').highcharts({
             chart: {
             	animation: false,
@@ -61,50 +80,46 @@ function book_plot( existing_runs, name ) {
         });
 };
 
-
-function make_plot(xVals, yVals, yErrs, name ) { 
-           name = typeof name !== 'undefined' ? name : "Just histogram";
-           xVals = typeof xVals !== 'undefined' ? xVals : [1, 2, 3];
-           yVals = typeof yVals !== 'undefined' ? yVals : [54, 55, 53];
-           $('#container').highcharts({
-            chart: {
-            	animation: false,
-            },
-            title: {
-                text: name
-            },
-            xAxis: {
-                categories: xVals
-            },
-            yAxis: {
-                title: {
-                    text: ''
-                }
-            },
-            series: [{
-                data: yVals,
-                type: 'spline'
-            },
-            {
-                data: yErrs,
-                type: 'errorbar'
-            }]
-        });
-};
 
 function update_plot(yVals, yErrs, name) { 
   var chart = $('#container').highcharts();
-  chart.setTitle({text: name});
+  chart.setTitle({text: name.toString()});
   for (i = 0; i < chart.series[0].data.length; i++) { 
     chart.series[0].data[i].update(yVals[i]);
     chart.series[1].data[i].update(yErrs[i]);
   }
 };
 
+function update_plot_lite(name) { 
+  var chart = $('#container').highcharts();
+  chart.setTitle({text: name.id});
+  chart.xAxis[0].setCategories(existing_runs);
+  chart.series[0].setData(map[name.id][hist]);
+  chart.series[1].setData(map[name.id]["err_"+hist]);
+  //for (i = 0; i < chart.series[0].data.length; i++) { 
+  //  chart.series[0].data[i].update(map[name.id][hist][i]);
+  //  chart.series[1].data[i].update(map[name.id]["err_"+hist][i]);
+  //}
+};
+
 
 function hide(div_id) {
 	var el = document.getElementById(div_id);
 	el.style.display = 'none';
+}
+
+
+
+function hideAsIT_lite(div_id) {
+  var el = document.getElementById(div_id);
+  el.style.display = 'none';
+  el.style.left ='55%';
+}
+
+function hideAsTT_lite(div_id) {
+  var el = document.getElementById(div_id);
+  el.style.display = 'none';
+  el.style.left ='10%';
 }
 
 
