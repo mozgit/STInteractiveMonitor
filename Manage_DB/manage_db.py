@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app import db
+from app.db import db
 from app.models import st_sector
 import ROOT as R
 import pickle
@@ -10,8 +10,12 @@ import datetime
 import random
 from Create_Maps import IT_Map as IT_Map_f
 from Create_Maps import TT_Map as TT_Map_f
+from db_info import find_existing_runs
+from db_info import list_runs
+
 f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/engine/NameList.pkl')
 NameList = pickle.load(f)
+
 
 def fill_random(nNentries=10):
     random.seed(datetime.datetime.now().microsecond)
@@ -85,22 +89,6 @@ def add_run(run_number, file):
 
     #t_ITHitMonitor = tree_ITHitMonitor.Get("TrackMonTuple")
     return True
-
-def find_existing_runs(minr, maxr):
-    client = connect('st_db')
-    existing_runs = []
-    for i in range(minr, maxr+1):
-        for d in client.st_db.st_sector.find({"run":i}).limit(1):
-            existing_runs.append(i)
-    return existing_runs
-
-def list_runs():
-    #Return a ilst of all known runs. 
-    #May should be a better way to search for it...
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/Manage_DB/Known_runs.pkl')
-    Known_runs = pickle.load(f)
-    print Known_runs
-    return Known_runs
 
 if __name__ == "__main__":
     #print "Befre clenaing"

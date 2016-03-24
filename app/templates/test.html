@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-<link type="text/css" rel="stylesheet" href="static/style.css"/>
+<link type="text/css" rel="stylesheet" href="static/css/style.css"/>
 <script type="text/javascript" src="static/jquery.min.js"></script>
 <script type="text/javascript" src="static/highcharts.js"></script>
 <script type="text/javascript" src="static/highcharts-more.js"></script>
@@ -33,6 +33,7 @@
       tt_max = parseFloat(JSON.parse(tt_rounding_request.responseText)[1]);
       document.getElementById('min_tt').value = JSON.parse(tt_rounding_request.responseText)[0];
       document.getElementById('max_tt').value = JSON.parse(tt_rounding_request.responseText)[1];
+      update_colors();
       }
     }
   };
@@ -46,6 +47,7 @@
       it_max = parseFloat(JSON.parse(it_rounding_request.responseText)[1]);
       document.getElementById('min_it').value = JSON.parse(it_rounding_request.responseText)[0];
       document.getElementById('max_it').value = JSON.parse(it_rounding_request.responseText)[1];
+      update_colors();
       }
     }
   };
@@ -53,7 +55,6 @@
 
 
   var request = new XMLHttpRequest();
-
   request.onreadystatechange = function(response) {
   if (request.readyState === 4) {
       if (request.status === 200) {
@@ -64,13 +65,13 @@
       }
     }
   };
-  var onload_request = new XMLHttpRequest();
 
+  var onload_request = new XMLHttpRequest();
   onload_request.onreadystatechange = function(response) {
   if (onload_request.readyState === 4) {
       if (onload_request.status === 200) {
       // Parse the JSON
-      console.log(JSON.parse(onload_request.responseText));
+      //console.log(JSON.parse(onload_request.responseText));
       jsonOptions = JSON.parse(onload_request.responseText);
       options = '';
       var last_run;
@@ -100,11 +101,10 @@
 
 
   var existing_runs_request = new XMLHttpRequest();
-
   existing_runs_request.onreadystatechange = function(response) {
   if (existing_runs_request.readyState === 4) {
       if (existing_runs_request.status === 200) {
-      console.log(JSON.parse(existing_runs_request.responseText));
+      //console.log(JSON.parse(existing_runs_request.responseText));
       existing_runs = JSON.parse(existing_runs_request.responseText);
       }
     }
@@ -116,7 +116,6 @@ function update_runs(){
       existing_runs_request.open('GET', 'existing_runs/'+run_range[0]+'____'+run_range[1]+'.json', true); 
       existing_runs_request.send();
       request.open('GET', 'results/'+run_range[0]+'____'+run_range[1]+'.json', true); request.send();
-
 }
 
 function update_limits(){
@@ -126,7 +125,7 @@ function update_limits(){
     it_min = 1000;    
     for (var st_id in map){
         if (st_id.indexOf('TT') == 0){
-            console.log(st_id);
+            //console.log(st_id);
             if (map[st_id]['stats'][hist.toString()][prop.toString()]>tt_max){
                 tt_max = map[st_id]['stats'][hist][prop];
             }
@@ -151,6 +150,7 @@ function update_limits(){
 }
 
 function update_colors(){
+    //console.log("tt_min: "+tt_min.toString()+"tt_max: "+tt_max.toString()+"it_min: "+it_min.toString()+"it_max: "+it_max.toString());
     for (var st_id in map)
     {   
 
@@ -158,30 +158,35 @@ function update_colors(){
         {
             //if (st_id.indexOf('TT') == 0){
             document.getElementById(st_id).style.backgroundColor='black';
-            //continue;
+            continue;
         //}
         }
-        if ((map[st_id]['stats'][hist][prop] < tt_min)||(map[st_id]['stats'][hist][prop] > tt_max))
+        var min;
+        var max;
+        var span_info_prefix;
+        if (st_id.indexOf('TT') == 0){
+            min = tt_min;
+            max = tt_max;
+            span_info_prefix = 'TT_span_info_';
+        }
+        else{
+            min = it_min;
+            max = it_max;
+            span_info_prefix = 'IT_span_info_';
+        }
+        if ((map[st_id]['stats'][hist][prop] < min)||(map[st_id]['stats'][hist][prop] > max))
         {
+            //console.log("Out of region");
             //if (st_id.indexOf('TT') == 0){
             document.getElementById(st_id).style.backgroundColor='white';
             continue;
         //}
         }
-        if (st_id.indexOf('TT') == 0){
-            var min = tt_min;
-            var max = tt_max;
-            var span_info_prefix = 'TT_span_info_';
-        }
-        else{
-            var min = it_min;
-            var max = it_max;
-            var span_info_prefix = 'IT_span_info_';
-        }
+
         // (value-limits[0])/(limits[1]-limits[0])
-        var color_code = (map[st_id]['stats'][hist][prop]-min)/(max-min);
-        var color = new HSLColour(color_code*240, 100, 50).getRGB();
-        var color_code = "rgb("+Math.round(color['r'])+","+Math.round(color['g'])+","+Math.round(color['b'])+")";
+        var color_num = (map[st_id]['stats'][hist][prop]-min)/(max-min);
+        var color = new HSLColour(color_num*240, 100, 50).getRGB();
+        var color_code = "rgb("+Math.round(color['r']).toString()+","+Math.round(color['g']).toString()+","+Math.round(color['b']).toString()+")";
         document.getElementById(st_id).style.backgroundColor=color_code;    
         if (hist =='efficiency'){
             document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString();
@@ -193,11 +198,11 @@ function update_colors(){
     }
     for (var i = 0; i<100;i++){
         var color = new HSLColour(i*2.4, 100, 50).getRGB();
-        var color_code = "rgb("+Math.round(color['r'])+","+Math.round(color['g'])+","+Math.round(color['b'])+")";
+        var color_code = "rgb("+Math.round(color['r']).toString()+","+Math.round(color['g']).toString()+","+Math.round(color['b']).toString()+")";
         document.getElementById('tt_'+i.toString()).style.backgroundColor=color_code;
-        document.getElementById('span_tt_'+i.toString()).innerHTML= round_tt_val(eval(i*(tt_max-tt_min)/100+tt_min));
+        document.getElementById('span_tt_'+i.toString()).innerHTML= round_tt_val(i*(parseFloat(tt_max)-parseFloat(tt_min))/100+parseFloat(tt_min)).toString();
         document.getElementById('it_'+i.toString()).style.backgroundColor=color_code;
-        document.getElementById('span_it_'+i.toString()).innerHTML= round_it_val(eval(i*(it_max-it_min)/100+it_min));        
+        document.getElementById('span_it_'+i.toString()).innerHTML= round_it_val(i*(parseFloat(it_max)-parseFloat(it_min))/100+parseFloat(it_min)).toString();        
         //console.log("["+tt_min.toString()+", "+tt_max.toString()+"] "+i.toString()+"  ->  "+eval(i*(tt_max-tt_min)/100+tt_min).toString());
         }
 }
@@ -207,26 +212,29 @@ function round_tt_val(tt_val){
     var max_tt_len = document.getElementById('max_tt').value.toString().length;
     var len = Math.max(min_tt_len, max_tt_len);
     var tenth = Math.pow(10, len);
-    return  Math.round(tt_val* tenth)/tenth;
+    return  Math.round(tt_val*tenth)/tenth;
 }
 
 function round_it_val(it_val){
+    //console.log(it_val);
     var min_it_len = document.getElementById('min_it').value.toString().length;
     var max_it_len = document.getElementById('max_it').value.toString().length;
     var len = Math.max(min_it_len, max_it_len);
     var tenth = Math.pow(10, len);
-    return  Math.round(it_val* tenth)/tenth;
+    return  Math.round(it_val*tenth)/tenth;
 }
 
 
 function update_hist(){
-    hist = document.getElementById('hist').value;
+    var selected = $("input[type='radio'][name='hist']:checked");
+    hist = selected.val();
     update_limits();
     update_colors();
 }
 
 function update_prop(){
-    prop = document.getElementById('prop').value;
+    var selected = $("input[type='radio'][name='prop']:checked");
+    prop = selected.val();
     update_limits();
     update_colors();
 }
@@ -250,51 +258,86 @@ function update_start_run(){
     document.getElementById('start_run').value = last_run;
 }
 
+function update_header(title){
+    document.getElementById('container_title').innerHTML = "<h1>"+title.id+"</h1>";
+}
+
 </script>
 </head>
  <body onload="onload_request.open('GET', 'all_runs/all_runs.json', true);onload_request.send();">    
 
 
 <datalist id="all_runs"></datalist> 
-<div id="STPlot">
-   <div id="container" style="width:45%; height:100%;"></div>
+<div id="STPlot" onclick="hideBig_lite('STPlot');">
+   <div id="container_canvas" style="width:100%; height:100%;background-color:white;">
+      <div id="container_title" style="text-align:center;border:1px solid black">
+        <h1>Name of the sector</h1>
+      </div>
+      <div style="width:100%; height:30%;top:10%;border:1px solid black;">
+          <div id="container_width" style="width:45%;height:29%;"></div>
+      </div>
+      <div style="width:100%; height:30%;top:40%;border:1px solid black;">
+          <div id="container_bias" style="width:45%;height:29%;"></div>
+      </div>
+      <div style="width:100%; height:30%;top:70%;border:1px solid black;">
+          <div id="container_efficiency" style="width:45%;height:29%;"></div>
+      </div>
+   </div>
 </div>
 
 <div style="width:10%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
-        <div style="width:100%;position:absolute;top:0%;left:00%;">
-                <select id="hist" onchange="update_hist()">
-                    <option value="efficiency">efficiency</option>
-                    <option value="bias">bias</option>
-                    <option value="width">width</option>
-                </select>
+        <div style="width:100%;position:absolute;top:2%;left:0%;">
+                Trend 
+                <table style="text-align:left;">
+                    <tr>
+                        <td>Efficiency</td><td><input type="radio" name="hist" value="efficiency" checked="checked" onchange="update_hist()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Bias</td><td><input type="radio" name="hist" value="bias"  onchange="update_hist()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Width</td><td><input type="radio" name="hist" value="width"  onchange="update_hist()"/></td>
+                    </tr>
+                </table>
         </div>
-        <div style="width:100%;position:absolute;top:5%;left:0%;">
-                <select id="prop" onchange="update_prop()">
-                    <option value="mean">mean</option>
-                    <option value="min">min</option>
-                    <option value="max">max</option>
-                    <!--<option value="last">last</option>-->
-                </select>
-        </div>
-        
-        <div style="width:100%;position:absolute;top:10%;left:0%;">
-            <!--<datalist id="all_runs"></datalist> -->
-              From: <select id="start_run" onchange="update_end_run()"></select>
-        </div>
-        <div style="width:100%;position:absolute;top:15%;left:0%;">
-              To: <select id="end_run" onchange="update_start_run()"></select>              
+        <div style="width:100%;position:absolute;top:12%;left:0%;">
+          Property
+                <table style="text-align:left;">
+                    <tr>
+                        <td>Mean</td><td><input type="radio" name="prop" value="mean" checked="checked" onchange="update_prop()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Min</td><td><input type="radio" name="prop" value="min"  onchange="update_prop()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Max</td><td><input type="radio" name="prop" value="max"  onchange="update_prop()"/></td>
+                    </tr>
+                </table>          
         </div>
         <div style="width:100%;position:absolute;top:20%;left:0%;">
-            <input type="submit" onclick="update_runs()">
+        Run range:
+        <table style="text-align:left;">
+          <tr>
+            <!--<datalist id="all_runs"></datalist> -->
+              <td>From:</td><td> <select id="start_run" onchange="update_end_run()"></select></td>
+        </tr>
+        <tr>
+              <td>To:</td><td> <select id="end_run" onchange="update_start_run()"></select>  </td>            
+        </tr>
+        </table> 
+        <table style="text-align:left;">
+        <tr>
+            <td><input type="submit" onclick="update_runs()"></td>
+        </tr>
+        </table>             
         </div>
-        >
 </div>
 <div style="width:90%;height:100%;position:absolute;top:0%;left:10%;text-align:center;">
 <div style="width:50%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
     <div style="width:10%;position:absolute;top:0%;left:0%;">
         <input type="text" id="min_tt" style="width:90%;">
     </div>
-    <div style="width:80%;height:10%;position:absolute;top:0%;left:10%;">
+    <div style="width:80%;height:7%;position:absolute;top:0%;left:10%;">
                 {% for i in range(0, 100) %}
                     <span class="dropt" >
                         <div style="width:1%;height:25%;position:absolute;top:0%;left:{{ i }}%;" id = "tt_{{ i }}">
@@ -303,10 +346,10 @@ function update_start_run(){
                     </span>
                 {% endfor %}"
     </div>
-    <div style="width:10%;height:10%;position:absolute;top:0%;left:90%;">
+    <div style="width:10%;height:7%;position:absolute;top:0%;left:90%;">
         <input type="text" id="max_tt" style="width:90%;">
     </div>
-    <div style="width:100%;height:90%;position:absolute;top:10%;left:0%;">
+    <div style="width:100%;height:95%;position:absolute;top:5%;left:0%;">
         {% for layer in tt %}
             {% if tt[layer]['layer_info'] %}
             <div id="TT_layer" align="center" style="
@@ -325,13 +368,13 @@ function update_start_run(){
                                         {% endfor %}" >
                             {% for sector in tt[layer][side] %}
                                 {% if  tt[layer][side][sector]['div_info'] %}
-                                <a href="/{{ tt[layer][side][sector]['Name'] }}">
+                                <!--<a href="/{{ tt[layer][side][sector]['Name'] }}">-->
                                 <div class="thumbnail" id={{ tt[layer][side][sector]['Name'] }} style="
                                     {% for i in tt[layer][side][sector]['div_info'] %}
                                         {{ i }}:{{ tt[layer][side][sector]['div_info'][i] }};
                                     {% endfor %}" 
-                                     onmouseover="update_plot_lite({{ tt[layer][side][sector]['Name'] }});showAsTT_lite('STPlot');" onmouseout="hideAsTT_lite('STPlot')"> 
-                                    <span id='TT_span_info' style="left:15%;top:5%">
+                                     onmouseover="update_plot_lite({{ tt[layer][side][sector]['Name'] }});showAsTT_lite('STPlot');update_header({{ tt[layer][side][sector]['Name'] }})" onmouseout="hideAsTT_lite('STPlot');" onclick="expand_lite('STPlot');"> 
+                                    <span id='TT_span_info' style="left:10%;top:2%;width:45%;background-color:transparent;border:transparent;">
                                     <div id='TT_span_info_{{ tt[layer][side][sector]["Name"] }}'> {{ tt[layer][side][sector]['Name'] }}  
                                     </div>
                                     </span>
@@ -353,7 +396,7 @@ function update_start_run(){
     <div style="width:10%;position:absolute;top:0%;left:0%;">
         <input type="text" id="min_it" style="width:90%;">
     </div>
-    <div style="width:80%;height:10%;position:absolute;top:0%;left:10%;">
+    <div style="width:80%;height:7%;position:absolute;top:0%;left:10%;">
                 {% for i in range(0, 100) %}
                     <span class="dropt" >
                         <div style="width:1%;height:25%;position:absolute;top:0%;left:{{ i }}%;" id = "it_{{ i }}">
@@ -362,10 +405,10 @@ function update_start_run(){
                     </span>
                 {% endfor %}"
     </div>
-    <div style="width:10%;height:10%;position:absolute;top:0%;left:90%;">
+    <div style="width:10%;height:7%;position:absolute;top:0%;left:90%;">
         <input type="text" id="max_it" style="width:90%;">
     </div>
-    <div style="width:100%;height:90%;position:absolute;top:10%;left:0%;">
+    <div style="width:100%;height:95%;position:absolute;top:5%;left:0%;">
         {% for station in it %}
             {% if it[station]['station_info'] %}
             <div id="IT_station" align="center" style="
@@ -387,13 +430,13 @@ function update_start_run(){
                                                 {% endfor %}">
                                 {% for sector in it[station][side][layer] %}
                                     {% if  it[station][side][layer][sector]['div_info'] %}
-                                    <a href="/{{ it[station][side][layer][sector]['Name'] }}">
+                                    <!--<a href="/{{ it[station][side][layer][sector]['Name'] }}">-->
                                         <div class="thumbnail" id={{ it[station][side][layer][sector]['Name'] }} style="
                                             {% for i in it[station][side][layer][sector]['div_info'] %}
                                                 {{ i }}:{{ it[station][side][layer][sector]['div_info'][i] }};
                                             {% endfor %}"
-                                            onmouseover="update_plot_lite({{ it[station][side][layer][sector]['Name'] }});showAsIT_lite('STPlot');" onmouseout="hideAsIT_lite('STPlot')"> 
-                                                <span id='IT_span_info' style="left:55%;top:5%">
+                                            onmouseover="update_plot_lite({{ it[station][side][layer][sector]['Name'] }});showAsIT_lite('STPlot');update_header({{ it[station][side][layer][sector]['Name'] }});" onmouseout="hideAsIT_lite('STPlot');" onclick="expand_lite('STPlot');"> 
+                                                <span id='IT_span_info' style="left:55%;top:2%;width:45%;background-color:transparent;border:transparent;">
                                                 <div id='IT_span_info_{{ it[station][side][layer][sector]["Name"] }}'> 
                                                     {{ it[station][side][layer][sector]['Name'] }}  
                                                 </div>

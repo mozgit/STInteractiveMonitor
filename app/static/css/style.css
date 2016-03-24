@@ -103,6 +103,12 @@ height: 100%; /*position where enlarged image should offset horizontally */
     background-color: White;  
 }
 
+#container-title{
+  text-align:center;
+  vertical-align:middle;
+  display:table-cell;
+}
+
 
 #STPlot{
 position:fixed;
