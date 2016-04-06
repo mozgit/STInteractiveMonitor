@@ -1,6 +1,6 @@
 import os
 from app.db import db
-from app.models import st_sector
+from app.models import st_sector, st_snapshot
 import pickle
 from mongoengine import *
 
@@ -8,8 +8,12 @@ def find_existing_runs(minr, maxr):
     client = connect('st_db')
     existing_runs = []
     for i in range(minr, maxr+1):
-        for d in client.st_db.st_sector.find({"run":i}).limit(1):
+        #for d in client.st_db.st_sector.find({"run":i}).limit(1):
+        #    existing_runs.append(i)
+        if st_snapshot.objects.get(run = i):
             existing_runs.append(i)
+    #print "fromt find_existing_runs:"
+    #print existing_runs
     return existing_runs
 
 def list_runs():
@@ -17,5 +21,5 @@ def list_runs():
     #May should be a better way to search for it...
     f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/Manage_DB/Known_runs.pkl')
     Known_runs = pickle.load(f)
-    print Known_runs
+    #print Known_runs
     return Known_runs

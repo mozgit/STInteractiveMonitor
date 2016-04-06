@@ -290,31 +290,31 @@ function update_header(title){
                 Trend 
                 <table style="text-align:left;">
                     <tr>
-                        <td>Efficiency</td><td><input type="radio" name="hist" value="efficiency" checked="checked" onchange="update_hist()"/></td>
+                        <td><input id="hist_efficiency" type="radio" name="hist" value="efficiency" checked="checked" onchange="update_hist()"/></td><td><label for='hist_efficiency'>Efficiency</td>
                     </tr>
                     <tr>
-                        <td>Bias</td><td><input type="radio" name="hist" value="bias"  onchange="update_hist()"/></td>
+                        <td><input id="hist_bias" type="radio" name="hist" value="bias"  onchange="update_hist()"/></td><td><label for='hist_bias'>Bias      </td>
                     </tr>
                     <tr>
-                        <td>Width</td><td><input type="radio" name="hist" value="width"  onchange="update_hist()"/></td>
+                        <td><input id="hist_width" type="radio" name="hist" value="width"  onchange="update_hist()"/></td><td><label for='hist_width'>Width     </td>
                     </tr>
                 </table>
         </div>
-        <div style="width:100%;position:absolute;top:12%;left:0%;">
+        <div style="width:100%;position:absolute;top:15%;left:0%;">
           Property
                 <table style="text-align:left;">
                     <tr>
-                        <td>Mean</td><td><input type="radio" name="prop" value="mean" checked="checked" onchange="update_prop()"/></td>
+                        <td><input id="prop_mean" type="radio" name="prop" value="mean" checked="checked" onchange="update_prop()"/></td><td><label for='prop_mean'>Mean     </td>
                     </tr>
                     <tr>
-                        <td>Min</td><td><input type="radio" name="prop" value="min"  onchange="update_prop()"/></td>
+                        <td><input id="prop_min" type="radio" name="prop" value="min"  onchange="update_prop()"/></td><td><label for='prop_min'>Min      </td>
                     </tr>
                     <tr>
-                        <td>Max</td><td><input type="radio" name="prop" value="max"  onchange="update_prop()"/></td>
+                        <td><input id="prop_max" type="radio" name="prop" value="max"  onchange="update_prop()"/></td><td><label for='prop_max'>Max      </td>
                     </tr>
                 </table>          
         </div>
-        <div style="width:100%;position:absolute;top:20%;left:0%;">
+        <div style="width:100%;position:absolute;top:30%;left:0%;">
         Run range:
         <table style="text-align:left;">
           <tr>

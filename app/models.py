@@ -1,5 +1,6 @@
 from db import db
 from copy import deepcopy
+import json
 
 class st_sector(db.Document):
     #This entry keeps functioning information of single sector during single run.
@@ -29,3 +30,22 @@ class st_sector(db.Document):
         self.err_width = run_number/1000
         return self
 
+    def printsector(self):
+        sector = {
+            'run' : self.run,
+            'name' : self.name,
+            'efficiency' : str(self.efficiency)+' +/- '+str(self.err_efficiency),
+            'bias' : str(self.bias)+' +/- '+str(self.err_bias),
+            'width' : str(self.width)+' +/- '+str(self.err_width)
+            }
+        print(json.dumps(sector,sort_keys=True, indent=4))
+        return True
+
+
+class st_snapshot(db.Document):
+    run = db.IntField(required=True, unique=True)
+    snapshot = db.ListField(db.ReferenceField(st_sector))
+
+    meta = {
+        'indexes':['run']
+    }
