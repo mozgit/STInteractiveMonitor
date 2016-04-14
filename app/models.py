@@ -1,11 +1,12 @@
 from db import db
 from copy import deepcopy
+import datetime
 import json
 
 class st_sector(db.Document):
     #This entry keeps functioning information of single sector during single run.
     run = db.IntField(required=True)
-    name = db.StringField(max_length=255, required=True)
+    name = db.StringField(max_length=255, required=True, unique_with='run')
     efficiency = db.FloatField()
     err_efficiency = db.FloatField()
     bias = db.FloatField()
@@ -16,6 +17,7 @@ class st_sector(db.Document):
     meta = {
         'indexes':['run','name']
     }
+
     def create(self, run_number):
         """
         This function should create snapshot entry from monitoring histogram
@@ -45,6 +47,8 @@ class st_sector(db.Document):
 class st_snapshot(db.Document):
     run = db.IntField(required=True, unique=True)
     snapshot = db.ListField(db.ReferenceField(st_sector))
+    datetime = db.DateTimeField(default=datetime.datetime.now)
+    alignment_iteration = db.IntField(default = 1)
 
     meta = {
         'indexes':['run']

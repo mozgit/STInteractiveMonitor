@@ -98,7 +98,7 @@ function book_plot( existing_runs, name ) {
                     text: 'Resolution [mm]',
                 },
                 labels: {
-                    format: '{value:.2f}'
+                    format: '{value:.4f}'
                 }                
             },
             legend:{enabled:false},
@@ -126,7 +126,7 @@ function book_plot( existing_runs, name ) {
                     text: 'Bias [mm]',
                 },
                 labels: {
-                        format: '{value:.2f}'
+                        format: '{value:.4f}'
                     }
             },
             legend:{enabled:false},
@@ -155,7 +155,7 @@ function book_plot( existing_runs, name ) {
                     text: 'Efficiency',
                 },
                 labels: {
-                        format: '{value:.2f}'
+                        format: '{value:.4f}'
                     }                
             },
             legend:{enabled:false},

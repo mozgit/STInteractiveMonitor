@@ -47,7 +47,8 @@ mongod
 ```
 - Run monitor in another terminal:
 ```
-python manage.py runserver
+cd app
+python views.py
 ```
 - open http://0.0.0.0:5000/index in your browser.
 

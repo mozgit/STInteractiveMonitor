@@ -8,18 +8,22 @@ def find_existing_runs(minr, maxr):
     client = connect('st_db')
     existing_runs = []
     for i in range(minr, maxr+1):
-        #for d in client.st_db.st_sector.find({"run":i}).limit(1):
-        #    existing_runs.append(i)
-        if st_snapshot.objects.get(run = i):
+        if st_snapshot.objects(run = i).first():
             existing_runs.append(i)
-    #print "fromt find_existing_runs:"
-    #print existing_runs
     return existing_runs
 
 def list_runs():
-    #Return a ilst of all known runs. 
-    #May should be a better way to search for it...
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/Manage_DB/Known_runs.pkl')
-    Known_runs = pickle.load(f)
-    #print Known_runs
-    return Known_runs
+    Known_runs = []
+    for i in st_snapshot.objects.only('run'):
+        if int(i.run) not in Known_runs:
+            Known_runs.append(int(i.run))
+    return sorted(Known_runs)
+
+def get_latest_date():
+    #Return date of latest saved histogram file
+    run = list_runs()[-1]
+    return st_snapshot.objects.get(run = run).datetime
+
+def get_latest_run():
+    #Return latest saved run
+    return list_runs()[-1]

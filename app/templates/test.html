@@ -7,7 +7,8 @@
 <script type="text/javascript" src="static/exporting.js"></script>
 <script type="text/javascript" src="static/css-pop.js"></script>
 <script type="text/javascript" src="static/Colour.js"></script>
-
+<script type="text/javascript" src="static/layouts.js"></script>
+<script type="text/javascript" src="/static/spin.min.js"></script>
 <script type="text/javascript">
 
   var map;
@@ -21,7 +22,24 @@
   var it_min=0;
   var it_max=1;
   var temp_limits = [0,0];
-
+  var opts = {
+    lines: 13, // The number of lines to draw
+    length: 10, // The length of each line
+    width: 3, // The line thickness
+    radius: 10, // The radius of the inner circle
+    corners: 1, // Corner roundness (0..1)
+    rotate: 0, // The rotation offset
+    direction: 1, // 1: clockwise, -1: counterclockwise
+    color: '#000', // #rgb or #rrggbb
+    speed: 1, // Rounds per second
+    trail: 46, // Afterglow percentage
+    shadow: true, // Whether to render a shadow
+    hwaccel: false, // Whether to use hardware acceleration
+    className: 'spinner', // The CSS class to assign to the spinner
+    zIndex: 2e9, // The z-index (defaults to 2000000000)
+    top: 'auto', // Top position relative to parent in px
+    left: 'auto' // Left position relative to parent in px
+  };
 
     //'/rounding/<query1>____<query2>.json'
   var tt_rounding_request = new XMLHttpRequest();
@@ -55,13 +73,14 @@
 
 
   var request = new XMLHttpRequest();
-  request.onreadystatechange = function(response) {
+  request.onreadystatechange = function(response) {  
   if (request.readyState === 4) {
       if (request.status === 200) {
       //console.log(request.responseText);
       map = JSON.parse(request.responseText);
       update_limits();
       update_colors();
+      $("#loading").hide();
       }
     }
   };
@@ -111,6 +130,11 @@
   };
 
 function update_runs(){
+
+      var target = document.getElementById('loading');
+      var spinner = new Spinner(opts).spin(target);
+      $("#loading").show();
+
       run_range[0] = document.getElementById('start_run').value;
       run_range[1] = document.getElementById('end_run').value;
       existing_runs_request.open('GET', 'existing_runs/'+run_range[0]+'____'+run_range[1]+'.json', true); 
@@ -248,10 +272,10 @@ function update_end_run(){
 function update_start_run(){
     var options = "";
     for (item in all_runs){
-        if (document.getElementById('end_run').value>=item){
-            var option = "<option value ='"+item+"'>"+item.toString()+"</option>"
+        if (document.getElementById('end_run').value>=all_runs[item]){
+            var option = "<option value ='"+all_runs[item]+"'>"+all_runs[item].toString()+"</option>"
             options = options + option;
-            last_run = item;
+            last_run = all_runs[item];
         }
     }
     document.getElementById('start_run').innerHTML = options;
@@ -261,6 +285,12 @@ function update_start_run(){
 function update_header(title){
     document.getElementById('container_title').innerHTML = "<h1>"+title.id+"</h1>";
 }
+function update_layout(){
+    var selected = $("input[type='radio'][name='layout']:checked");
+    var layout = selected.val();
+    return set_layout(map, layout);
+}
+
 
 </script>
 </head>
@@ -329,8 +359,27 @@ function update_header(title){
         <tr>
             <td><input type="submit" onclick="update_runs()"></td>
         </tr>
-        </table>             
+        </table>   
+        <div id="loading" style="width:100%;height:100%;position:absolute;top:150%;left:50%;">
+          <div style="width:100%;position:absolute;top:50%;left:-50%;">
+            Loading...
+          </div>          
+        </div>          
         </div>
+        <div style="width:100%;position:absolute;bottom:0%;left:0%;">
+                Layout by 
+                <table style="text-align:left;">
+                    <tr>
+                        <td><input id="layout_Ilya" type="radio" name="layout" value="Ilya"  onchange="update_layout()"/></td><td><label for='layout_Ilya'>Ilya</td>
+                    </tr>
+                    <tr>
+                        <td><input id="layout_Mark" type="radio" name="layout" value="Mark"  onchange="update_layout()"/></td><td><label for='layout_Mark'>Mark      </td>
+                    </tr>
+                    <tr>
+                        <td><input id="layout_Frederic" type="radio" name="layout" value="Frederic" checked="checked" onchange="update_layout()"/></td><td><label for='layout_Frederic'>Frederic     </td>
+                    </tr>
+                </table>
+        </div>        
 </div>
 <div style="width:90%;height:100%;position:absolute;top:0%;left:10%;text-align:center;">
 <div style="width:50%;height:100%;position:absolute;top:0%;left:0%;text-align:center;">
@@ -352,17 +401,17 @@ function update_header(title){
     <div style="width:100%;height:95%;position:absolute;top:5%;left:0%;">
         {% for layer in tt %}
             {% if tt[layer]['layer_info'] %}
-            <div id="TT_layer" align="center" style="
+            <div id="{{ layer }}" align="center" style="
                                     {% for i in tt[layer]['layer_info'] %}
                                         {{ i }}:{{ tt[layer]['layer_info'][i] }};
                                     {% endfor %}">
-                <div style="width:100%;height:15%;position:absolute;top:0;left:0%;">
+                <div id="name_{{ layer }}" style="width:100%;height:15%;position:absolute;top:0;left:0%;">
                 <h2>{{ layer }}</h2>
                 </div>
-                <div style="width:90%;height:80%;position:absolute;top:15%;left:5%;">
+                <div id="position_{{ layer }}" style="width:90%;height:80%;position:absolute;top:15%;left:5%;">
                 {% for side in tt[layer] %}
                     {% if  tt[layer][side]['side_info'] %}
-                        <div id="TT_side" align="center" style="
+                        <div id="{{ layer+side }}" align="center" style="
                                         {% for i in tt[layer][side]['side_info'] %}
                                             {{ i }}:{{ tt[layer][side]['side_info'][i] }};
                                         {% endfor %}" >
