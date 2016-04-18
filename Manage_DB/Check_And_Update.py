@@ -31,9 +31,15 @@ if __name__ == "__main__":
     #    print i
     files = sorted(glob.iglob(path+"*/*/*.root"), key=os.path.getctime, reverse=True)
     latest_run = get_latest_run()
-    latest_alignment_iteration = st_snapshot.objects.get(run = latest_run).alignment_iteration
-    latest_date = get_latest_date()
-    latest_timestamp = str(latest_date.year).zfill(4)+str(latest_date.month).zfill(2)+str(latest_date.day).zfill(2)+"T"+str(latest_date.hour).zfill(2)+str(latest_date.minute).zfill(2)+str(latest_date.second).zfill(2)
+    if latest_run:
+        latest_alignment_iteration = st_snapshot.objects.get(run = latest_run).alignment_iteration
+        latest_date = get_latest_date()
+        latest_timestamp = str(latest_date.year).zfill(4)+str(latest_date.month).zfill(2)+str(latest_date.day).zfill(2)+"T"+str(latest_date.hour).zfill(2)+str(latest_date.minute).zfill(2)+str(latest_date.second).zfill(2)
+    else:
+        latest_run = -1
+        latest_date = datetime.datetime(2000, 01, 01)
+        latest_alignment_iteration = 0
+        latest_timestamp = "0"
     #print latest_timestamp
     need_to_add = []
     for f in files:

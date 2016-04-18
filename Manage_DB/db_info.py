@@ -21,9 +21,15 @@ def list_runs():
 
 def get_latest_date():
     #Return date of latest saved histogram file
-    run = list_runs()[-1]
-    return st_snapshot.objects.get(run = run).datetime
+    try:
+        run = list_runs()[-1]
+        return st_snapshot.objects.get(run = run).datetime
+    except:
+        return False
 
 def get_latest_run():
     #Return latest saved run
-    return list_runs()[-1]
+    try:
+        return list_runs()[-1]
+    except:
+        return False
