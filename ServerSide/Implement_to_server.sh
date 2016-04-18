@@ -9,7 +9,7 @@
 cd $HOME
 #Installation of pip
 curl https://bootstrap.pypa.io/get-pip.py > $HOME/get-pip.py
-python get-pip.py
+sudo python get-pip.py
 
 #installation of virtualenv
 sudo pip install virtualenv
@@ -32,7 +32,7 @@ pip install joblib==0.9.4
 pip install MarkupSafe==0.23
 pip install mongoengine==0.10.6
 pip install pymongo==2.8
-pip install setuptools 20==6.7
+pip install setuptools==20.rm -6.7
 pip install uWSGI==2.0.12
 pip install Werkzeug==0.11.5
 pip install wheel==0.29.0
@@ -59,6 +59,10 @@ cd bin
 source thisroot.sh
 cd $HOME
 
+#Installing mongod:
+sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/mongodb-org-3.2.repo /etc/yum.repos.d/
+sudo yum install -y mongodb-org
+
 #Installing NGINX
 sudo yum install nginx
 
@@ -70,6 +74,7 @@ sudo mkdir /etc/uwsgi
 sudo mkdir /etc/uwsgi/apps-available
 sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/uwsgi.ini /etc/uwsgi/apps-available/
 sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/uwsgi.service /usr/lib/systemd/system/
+sudo pisystemctl daemon-reload
 
 #Configure NGINX
 sudo mkdir /etc/nginx/sites-enabled
