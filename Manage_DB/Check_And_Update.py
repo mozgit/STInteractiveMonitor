@@ -24,7 +24,7 @@ if __name__ == "__main__":
     else:
         year = str(kwargs['year'])
 
-    test_data = "Brunel-50000ev-histos.root"
+    test_data = "/home/ikomarov/Brunel-50000ev-histos.root"
     path = "/hist/Savesets/"+year+"/LHCbA/AligWrk_Tracker/"#10/20/
     #files = sorted(glob.iglob('/Users/ilya/*/*.root'), key=os.path.getctime, reverse=True)
     #for i in files:
