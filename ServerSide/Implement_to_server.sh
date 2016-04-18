@@ -32,7 +32,7 @@ pip install joblib==0.9.4
 pip install MarkupSafe==0.23
 pip install mongoengine==0.10.6
 pip install pymongo==2.8
-pip install setuptools==20.rm -6.7
+pip install setuptools==20.6.7
 pip install uWSGI==2.0.12
 pip install Werkzeug==0.11.5
 pip install wheel==0.29.0
@@ -49,6 +49,7 @@ avahi-compat-libdns_sd-devel libldap-dev python-devel \
 libxml2-devel gsl-static
 
 #Installing root
+cd $HOME
 git clone http://root.cern.ch/git/root.git
 cd root
 git tag -l
@@ -74,7 +75,7 @@ sudo mkdir /etc/uwsgi
 sudo mkdir /etc/uwsgi/apps-available
 sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/uwsgi.ini /etc/uwsgi/apps-available/
 sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/uwsgi.service /usr/lib/systemd/system/
-sudo pisystemctl daemon-reload
+sudo systemctl daemon-reload
 
 #Configure NGINX
 sudo mkdir /etc/nginx/sites-enabled
