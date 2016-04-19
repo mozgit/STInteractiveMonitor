@@ -83,7 +83,7 @@ sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/nginx.conf /etc/nginx/
 sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/default /etc/nginx/sites-enabled
 
 #Add update of the DB task to CRON
-sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/CheckAndUpdate.sh /etc/cron.hourly/
+#sudo cp $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/CheckAndUpdate.sh /etc/cron.hourly/
 
 #Start application
-source $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/StartServer.sh
+#source $HOME/ST_Monitor/STInteractiveMonitor/ServerSide/StartServer.sh

@@ -1,6 +1,6 @@
 upstream flask_serv {
     server unix:/scratch/stm.sock;
-    #server /tmp/stm.sock;
+    server 127.0.0.1:5000
 }
 
 server {

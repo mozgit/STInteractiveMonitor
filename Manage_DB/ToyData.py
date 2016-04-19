@@ -31,51 +31,59 @@ def add_run_toy(run_number, file, datetime = False, alignment_iteration = False)
     snapshot = []
     for st_id in TT_Map:
         hist = hist_all_TT_Mon.ProjectionY(TT_Map[st_id], st_id+1, st_id+1)
-        mean = hist.GetMean()
-        width = hist.GetRMS()
+        #mean = hist.GetMean()
+        #width = hist.GetRMS()
+        mean = hist.GetEntries()
+        width = (hist.GetEntries())**0.5
         err_width = hist.GetRMSError()
         new_width = random.gauss(width,err_width)
-        #f = max(random.gauss(hist_all_TT_nFound.GetBinContent(st_id+1),hist_all_TT_nFound.GetBinContent(st_id+1)**0.5),0)
-        #nf = max(random.gauss(hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1),(hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1))**05),0)
-        f = max(hist_all_TT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
-        nf = max(hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
+        #new_mean = random.gauss(mean,width)
+        new_mean = mean
+        f = hist_all_TT_nFound.GetBinContent(st_id+1)
+        nf = hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1)
+        #f = max(hist_all_TT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
+        #nf = max(hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
 
         tot = f+nf
         try:
-            eff = float(f)/float(tot)
-            err_eff = (float(f*nf)/float(tot)**3)**0.5
-            #eff = float(f)
-            #err_eff = eff**0.5
+            #eff = float(f)/float(tot)
+            #err_eff = (float(f*nf)/float(tot)**3)**0.5
+            eff = float(f)
+            err_eff = eff**0.5
         except:
             eff = 0.001
             err_eff = 0
         print "Efficiency of "+TT_Map[st_id]+" ("+str(st_id)+") is "+str(eff)+" +/- "+str(err_eff)
-        st_sector.objects(name = TT_Map[st_id], run = run_number).update_one(set__efficiency = eff, set__bias = random.gauss(mean,width), set__width = new_width,
+        st_sector.objects(name = TT_Map[st_id], run = run_number).update_one(set__efficiency = eff, set__bias = new_mean, set__width = new_width,
                                                           set__err_efficiency = err_eff, set__err_bias =new_width, set__err_width = random.gauss(hist.GetRMSError(),hist.GetRMSError()/10), upsert=True)
         sector = st_sector.objects.get(name = TT_Map[st_id], run = run_number)
         snapshot.append(sector)
     for st_id in IT_Map:
         hist = hist_all_IT_Mon.ProjectionY(IT_Map[st_id], st_id+1, st_id+1)
-        mean = hist.GetMean()
-        width = hist.GetRMS()    
+        #mean = hist.GetMean()
+        #width = hist.GetRMS() 
+        mean = hist.GetEntries()
+        width = (hist.GetEntries())**0.5
         err_width = hist.GetRMSError()
         new_width = random.gauss(width,err_width)
-        #f = max(random.gauss(hist_all_IT_nFound.GetBinContent(st_id+1),hist_all_IT_nFound.GetBinContent(st_id+1)**0.5),0)
-        #nf = max(random.gauss(hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1),(hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1))**05),0)
-        f = max(hist_all_IT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
-        nf = max(hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
+        #new_mean = random.gauss(mean,width)
+        new_mean = mean
+        f = hist_all_IT_nFound.GetBinContent(st_id+1)
+        nf = hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1)
+        #f = max(hist_all_IT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
+        #nf = max(hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1)+random.randint(-5,5),0)
 
         tot = f+nf
         try:
-            eff = float(f)/float(tot)
-            err_eff = (float(f*nf)/float(tot)**3)**0.5
-            #eff = float(f)
-            #err_eff = eff**0.5
+            #eff = float(f)/float(tot)
+            #err_eff = (float(f*nf)/float(tot)**3)**0.5
+            eff = float(f)
+            err_eff = eff**0.5
         except:
             eff = 0.001
             err_eff = 0
         print "Efficiency of "+IT_Map[st_id]+" ("+str(st_id)+") is "+str(eff)+" +/- "+str(err_eff)
-        st_sector.objects(name = IT_Map[st_id], run = run_number).update_one(set__efficiency = eff, set__bias = random.gauss(mean,width), set__width = new_width,
+        st_sector.objects(name = IT_Map[st_id], run = run_number).update_one(set__efficiency = eff, set__bias = new_mean, set__width = new_width,
                                                           set__err_efficiency = err_eff, set__err_bias =new_width, set__err_width = random.gauss(hist.GetRMSError(),hist.GetRMSError()/10), upsert=True)
         sector = st_sector.objects.get(name = IT_Map[st_id], run = run_number)
         snapshot.append(sector)
