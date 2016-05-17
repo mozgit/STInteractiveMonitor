@@ -90,26 +90,81 @@ function book_plot( existing_runs, name ) {
                 text: ""
             },
             xAxis: {
+              name: 'Run',
               title:{text:null}
                 //categories: xVals
             },
-            yAxis: {
+            yAxis: [{
                 title: {
-                    text: 'Resolution [mm]',
+                    text: 'Resolution [μm]',
                 },
                 labels: {
-                    format: '{value:.4f}'
+                    format: '{value:3.2f}'
                 }                
             },
+            {
+                title: {
+                    text: 'Statistics',
+                },
+                opposite: true                
+            }],
+            tooltip: {
+                formatter: function () {
+                    var s = '<b> Run ' + this.x + '</b>';
+                    var stat_s = '';
+                    var val_s = '';
+                    var err_s = '';
+                    $.each(this.points, function () {
+                        if (this.series.name == 'Number of hits'){
+                          stat_s += (Math.round(this.y)).toString();
+                        }
+                        if (this.series.name == 'Resolution'){
+                          val_s += (Math.round(this.y*100)/100).toString();
+                        }    
+                        if (this.series.name == 'One sigma range'){
+                          err_s += (Math.round((this.point.high-this.point.low)/2*100)/100).toString();
+                        }                
+                    });
+                    s+='<br/> Resolution: '+  val_s +' +/- '+err_s+ 'μm<br/> Number of hits: '+stat_s;
+                    return s;
+                },
+                shared: true
+            },
             legend:{enabled:false},
-            series: [{
+            series: [
+            {
+                name: 'Number of hits',
+                data: yVals,
+                type: 'area',
+                yAxis: 1,
+                fillColor: {
+                    linearGradient: [0, 0, 0, 300],
+                    stops: [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                lineWidth: 0,
+                lineColor: '#FFFFFF',
+                marker: {
+                    enabled: false,
+                    fillColor: '#FFFFFF',
+                    lineWidth: 2,
+                    lineColor: null // inherit from series                    
+                }                                
+            },
+
+            {
+                name: 'Resolution',
                 data: yVals,
                 type: 'spline'
             },
             {
+                name: 'One sigma range',
                 data: yErrs,
                 type: 'errorbar'
-            }]
+            }
+            ]
         });
            $('#container_bias').highcharts({
             chart: {
@@ -121,20 +176,72 @@ function book_plot( existing_runs, name ) {
             xAxis: {
                 //categories: xVals
             },
-            yAxis: {
+            yAxis: [{
                 title: {
-                    text: 'Bias [mm]',
+                    text: 'Bias [μm]',
                 },
                 labels: {
-                        format: '{value:.4f}'
+                        format: '{value:3.2f}'
                     }
             },
+            {
+                title: {
+                    text: 'Statistics',
+                },
+                opposite: true                
+            }], 
+            tooltip: {
+                formatter: function () {
+                    var s = '<b> Run ' + this.x + '</b>';
+                    var stat_s = '';
+                    var val_s = '';
+                    var err_s = '';
+                    $.each(this.points, function () {
+                        if (this.series.name == 'Number of hits'){
+                          stat_s += (Math.round(this.y)).toString();
+                        }
+                        if (this.series.name == 'Bias'){
+                          val_s += (Math.round(this.y*100)/100).toString();
+                        }    
+                        if (this.series.name == 'One sigma range'){
+                          err_s += (Math.round((this.point.high-this.point.low)/2*100)/100).toString();
+                        }                
+                    });
+                    s+='<br/> Bias: '+  val_s +' +/- '+err_s+ 'μm<br/> Number of hits: '+stat_s;
+                    return s;
+                },
+                shared: true
+            },                       
             legend:{enabled:false},
-            series: [{
+            series: [
+            {
+                name: 'Number of hits',
+                data: yVals,
+                type: 'area',
+                yAxis: 1,
+                fillColor: {
+                    linearGradient: [0, 0, 0, 300],
+                    stops: [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                lineWidth: 0,
+                lineColor: '#FFFFFF',
+                marker: {
+                    enabled: false,
+                    fillColor: '#FFFFFF',
+                    lineWidth: 2,
+                    lineColor: null // inherit from series                    
+                }                                
+            },
+            {
+                name: 'Bias',
                 data: yVals,
                 type: 'spline'
             },
             {
+                name: 'One sigma range',
                 data: yErrs,
                 type: 'errorbar'
             }]
@@ -150,20 +257,73 @@ function book_plot( existing_runs, name ) {
               title:{text:null}
                 //categories: xVals
             },
-            yAxis: {
+            yAxis: [{
                 title: {
-                    text: 'Efficiency',
+                    text: 'Efficiency, %',
                 },
                 labels: {
-                        format: '{value:.4f}'
+                        format: '{value:3.2f}'
                     }                
             },
+            {
+                title: {
+                    text: 'Statistics',
+                },
+                opposite: true                
+            }],
+
+            tooltip: {
+                formatter: function () {
+                    var s = '<b> Run ' + this.x + '</b>';
+                    var stat_s = '';
+                    var val_s = '';
+                    var err_s = '';
+                    $.each(this.points, function () {
+                        if (this.series.name == 'Number of found hits'){
+                          stat_s += (Math.round(this.y)).toString();
+                        }
+                        if (this.series.name == 'Efficiency'){
+                          val_s += (Math.round(this.y*100)/100).toString();
+                        }    
+                        if (this.series.name == 'One sigma range'){
+                          err_s += (Math.round((this.point.high-this.point.low)/2*100)/100).toString();
+                        }                
+                    });
+                    s+='<br/> Efficiency: '+  val_s +' +/- '+err_s+ '%<br/> Number of hits: '+stat_s;
+                    return s;
+                },
+                shared: true
+            },              
             legend:{enabled:false},
-            series: [{
+            series: [
+            {
+                name: 'Number of found hits',
+                data: yVals,
+                type: 'area',
+                yAxis: 1,
+                fillColor: {
+                    linearGradient: [0, 0, 0, 300],
+                    stops: [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                lineWidth: 0,
+                lineColor: '#FFFFFF',
+                marker: {
+                    enabled: false,
+                    fillColor: '#FFFFFF',
+                    lineWidth: 2,
+                    lineColor: null // inherit from series                    
+                }                                
+            },
+            {
+                name: 'Efficiency',
                 data: yVals,
                 type: 'spline'
             },
             {
+                name: 'One sigma range',
                 data: yErrs,
                 type: 'errorbar'
             }]
@@ -186,18 +346,24 @@ function update_plot_lite(name) {
   var chart_efficiency = $('#container_efficiency').highcharts();
   //chart_width.setTitle({text: name.id});
   chart_width.xAxis[0].setCategories(existing_runs);
-  chart_width.series[0].setData(map[name.id]["width"]);
-  chart_width.series[1].setData(map[name.id]["err_width"]);
+  chart_width.series[1].setData(map[name.id]["width"]);
+  chart_width.series[2].setData(map[name.id]["err_width"]);
+  chart_width.series[0].setData(map[name.id]["n_res"]);
 
   //chart_bias.setTitle({text: name.id});
   chart_bias.xAxis[0].setCategories(existing_runs);
-  chart_bias.series[0].setData(map[name.id]["bias"]);
-  chart_bias.series[1].setData(map[name.id]["err_bias"]);
+  chart_bias.series[1].setData(map[name.id]["bias"]);
+  chart_bias.series[2].setData(map[name.id]["err_bias"]);
+  //I'm not sure why is this line is needed, 
+  //but without it statistics is not updated
+  chart_bias.series[0].setData(map[name.id]["n_eff"]);
+  chart_bias.series[0].setData(map[name.id]["n_res"]);  
 
   //chart_efficiency.setTitle({text: name.id});
   chart_efficiency.xAxis[0].setCategories(existing_runs);
-  chart_efficiency.series[0].setData(map[name.id]["efficiency"]);
-  chart_efficiency.series[1].setData(map[name.id]["err_efficiency"]);  
+  chart_efficiency.series[1].setData(map[name.id]["efficiency"]);
+  chart_efficiency.series[2].setData(map[name.id]["err_efficiency"]);  
+  chart_efficiency.series[0].setData(map[name.id]["n_eff"]);
 
   //for (i = 0; i < chart.series[0].data.length; i++) { 
   //  chart.series[0].data[i].update(map[name.id][hist][i]);

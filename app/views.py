@@ -11,6 +11,8 @@ from Manage_DB.db_info import find_existing_runs
 from Manage_DB.db_info import list_runs
 from flask import render_template
 from flask import Response
+from mongoengine import *
+from flask.ext.mongoengine import MongoEngine
 # Load the list of unique sector names
 #f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/engine/NameList.pkl')
 #NameList = pickle.load(f)
@@ -37,6 +39,9 @@ def round_json(query1,query2):
 def s_json(query1, query2):
     try:
         existing_runs=find_existing_runs(int(query1),int(query2))
+        print "collecting info_lite"
+        info_lite = get_info_lite(existing_runs)
+        print "info collected"
         return Response(json_dump(get_info_lite(existing_runs)), mimetype='application/json')
     except:
         return False

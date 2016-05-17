@@ -13,6 +13,8 @@ class st_sector(db.Document):
     err_bias = db.FloatField()
     width = db.FloatField()
     err_width = db.FloatField()
+    n_eff = db.FloatField()
+    n_res = db.FloatField()
     #residuals = db.StringField(max_length=255, required=True, unique=True)
     meta = {
         'indexes':['run','name']
@@ -30,6 +32,8 @@ class st_sector(db.Document):
         self.err_bias = run_number/1000
         self.width = run_number/100
         self.err_width = run_number/1000
+        self.n_eff = 80
+        self.n_res = 100
         return self
 
     def printsector(self):
@@ -38,7 +42,9 @@ class st_sector(db.Document):
             'name' : self.name,
             'efficiency' : str(self.efficiency)+' +/- '+str(self.err_efficiency),
             'bias' : str(self.bias)+' +/- '+str(self.err_bias),
-            'width' : str(self.width)+' +/- '+str(self.err_width)
+            'width' : str(self.width)+' +/- '+str(self.err_width),
+            'stat_efficiency': str(self.n_eff),
+            'stat_residual': str(self.n_res)
             }
         print(json.dumps(sector,sort_keys=True, indent=4))
         return True

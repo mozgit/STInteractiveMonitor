@@ -213,11 +213,18 @@ function update_colors(){
         var color_code = "rgb("+Math.round(color['r']).toString()+","+Math.round(color['g']).toString()+","+Math.round(color['b']).toString()+")";
         document.getElementById(st_id).style.backgroundColor=color_code;    
         if (hist =='efficiency'){
-            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString();
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString()+" %";
         }
-        else{
-            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString()+" mm";
+        else if ((hist == 'width') || (hist == 'bias')){
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' '+hist+' '+prop+': '+round_tt_val(map[st_id]['stats'][hist][prop]).toString()+" μm";
         }
+        else if (hist == 'n_res'){
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' TrackMonitor statistics '+prop+': '+Math.round(map[st_id]['stats'][hist][prop]).toString();
+        }        
+        else if (hist == 'n_eff'){
+            document.getElementById(span_info_prefix+st_id).innerHTML= st_id+' STEfficiency statistics '+prop+': '+Math.round(map[st_id]['stats'][hist][prop]).toString();
+        }        
+
         
     }
     for (var i = 0; i<100;i++){
@@ -328,9 +335,16 @@ function update_layout(){
                     <tr>
                         <td><input id="hist_width" type="radio" name="hist" value="width"  onchange="update_hist()"/></td><td><label for='hist_width'>Width     </td>
                     </tr>
+                    <tr>
+                        <td><input id="hist_n_res" type="radio" name="hist" value="n_res"  onchange="update_hist()"/></td><td><label for='hist_n_res'>Stat.Track.Mon.     </td>
+                    </tr>
+                    <tr>
+                        <td><input id="hist_n_eff" type="radio" name="hist" value="n_eff"  onchange="update_hist()"/></td><td><label for='hist_n_eff'>Stat.STEff.     </td>
+                    </tr>
+
                 </table>
         </div>
-        <div style="width:100%;position:absolute;top:15%;left:0%;">
+        <div style="width:100%;position:absolute;top:20%;left:0%;">
           Property
                 <table style="text-align:left;">
                     <tr>
@@ -344,7 +358,7 @@ function update_layout(){
                     </tr>
                 </table>          
         </div>
-        <div style="width:100%;position:absolute;top:30%;left:0%;">
+        <div style="width:100%;position:absolute;top:35%;left:0%;">
         Run range:
         <table style="text-align:left;">
           <tr>
@@ -393,7 +407,7 @@ function update_layout(){
                             <span id="span_tt_{{ i }}">Hi!</span>
                         </div>
                     </span>
-                {% endfor %}"
+                {% endfor %}
     </div>
     <div style="width:10%;height:7%;position:absolute;top:0%;left:90%;">
         <input type="text" id="max_tt" style="width:90%;">
@@ -452,7 +466,7 @@ function update_layout(){
                             <span id="span_it_{{ i }}">Hi!</span>
                         </div>
                     </span>
-                {% endfor %}"
+                {% endfor %}
     </div>
     <div style="width:10%;height:7%;position:absolute;top:0%;left:90%;">
         <input type="text" id="max_it" style="width:90%;">

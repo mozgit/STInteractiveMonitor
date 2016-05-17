@@ -69,13 +69,15 @@ def get_info_lite(existing_runs):
     client = connect('st_db')
     db = client.st_db
     f = open('../engine/NameList.pkl')
-    variables = ['width', 'bias', 'efficiency']
     NameList = pickle.load(f) 
+    variables = ['width', 'bias', 'efficiency']
+    n_vars = ['n_eff', 'n_res']
     summary = {}
     for det in NameList:
         for s in NameList[det]:
             summary[s]={'stats':{}}
-            for v in variables:
+            for v in variables+n_vars:
+                #print v
                 summary[s][v]=[]
                 summary[s]["err_"+v]=[]
                 summary[s]['stats'][v]={}    
@@ -87,9 +89,15 @@ def get_info_lite(existing_runs):
                 err = sct['err_'+v]
                 summary[sct.name][v].append(val)
                 summary[sct.name]['err_'+v].append([val-err, val+err])
+            for v in n_vars:
+                val = abs(sct[v])
+                err = abs(sct[v])**0.5
+                summary[sct.name][v].append(val)
+                summary[sct.name]['err_'+v].append([val-err, val+err])
+
     for det in NameList:
         for s in NameList[det]:
-            for v in variables:
+            for v in variables + n_vars:
                 if len(summary[s][v])>0:
                     summary[s]['stats'][v]['mean']=float(sum(summary[s][v]))/float(len(summary[s][v]))
                     summary[s]['stats'][v]['min']=float(min(summary[s][v]))

@@ -64,5 +64,5 @@ if __name__ == "__main__":
     #add_run(2, "/Users/ilya/TempData/2.root")    
     #add_run(3, "/Users/ilya/TempData/3.root")
     #add_run(200, "/Users/ilya/TempData/Brunel-1000ev-histos.root")
-    fill_random(100)
+    #fill_random(100)
     #print find_existing_runs(0, 6)

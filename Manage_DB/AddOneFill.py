@@ -20,29 +20,34 @@ import datetime
 
 def add_run(run_number, file, datetime = False, alignment_iteration = False):
     f_input = R.TFile(file)
-    hist_all_TT_Mon = f_input.Track.Get("TTTrackMonitor/AllSectorsUnbiasedResidualHisto")
-    hist_all_TT_Eff = f_input.Track.Get("TTHitEfficiency/SummaryEfficiencyPlot")
-    hist_all_TT_nExp = f_input.Track.Get("TTHitEfficiency/SummaryNbExpectedPlot")
-    hist_all_TT_nFound = f_input.Track.Get("TTHitEfficiency/SummaryNbFoundPlot")
-    hist_all_IT_Mon = f_input.Track.Get("ITTrackMonitor/AllSectorsUnbiasedResidualHisto")
-    hist_all_IT_Eff = f_input.Track.Get("ITHitEfficiency/SummaryEfficiencyPlot")
-    hist_all_IT_nExp = f_input.Track.Get("ITHitEfficiency/SummaryNbExpectedPlot")
-    hist_all_IT_nFound = f_input.Track.Get("ITHitEfficiency/SummaryNbFoundPlot")
+    hist_all_TT_MonBIAS = f_input.Track.Get("STPerf_TTTrackMonitor/AllSectorsUnbiasedResidualHisto")
+    hist_all_TT_MonRMS = f_input.Track.Get("STPerf_TTTrackMonitor/AllSectorsResidualHisto")
+    hist_all_TT_Eff = f_input.Track.Get("STPerf_TTHitEfficiency/SummaryEfficiencyPlot")
+    hist_all_TT_nExp = f_input.Track.Get("STPerf_TTHitEfficiency/SummaryNbExpectedPlot")
+    hist_all_TT_nFound = f_input.Track.Get("STPerf_TTHitEfficiency/SummaryNbFoundPlot")
+    hist_all_IT_MonBIAS = f_input.Track.Get("STPerf_ITTrackMonitor/AllSectorsUnbiasedResidualHisto")
+    hist_all_IT_MonRMS = f_input.Track.Get("STPerf_ITTrackMonitor/AllSectorsResidualHisto")
+    hist_all_IT_Eff = f_input.Track.Get("STPerf_ITHitEfficiency/SummaryEfficiencyPlot")
+    hist_all_IT_nExp = f_input.Track.Get("STPerf_ITHitEfficiency/SummaryNbExpectedPlot")
+    hist_all_IT_nFound = f_input.Track.Get("STPerf_ITHitEfficiency/SummaryNbFoundPlot")
     TT_Map = TT_Map_f()
     IT_Map = IT_Map_f()
     snapshot = []
     for st_id in TT_Map:
-        hist = hist_all_TT_Mon.ProjectionY(TT_Map[st_id], st_id+1, st_id+1)
-        mean = hist.GetMean()
-        width = hist.GetRMS()
+        histBIAS = hist_all_TT_MonBIAS.ProjectionY(TT_Map[st_id], st_id+1, st_id+1)
+        histRMS = hist_all_TT_MonRMS.ProjectionY(TT_Map[st_id], st_id+1, st_id+1)
+        mean = histBIAS.GetMean()        
+        width = histRMS.GetRMS()
+        n_eff = hist_all_TT_nFound.GetBinContent(st_id+1)
+        n_res = histBIAS.GetEntries()
         f = hist_all_TT_nFound.GetBinContent(st_id+1)
         nf = hist_all_TT_nExp.GetBinContent(st_id+1) -hist_all_TT_nFound.GetBinContent(st_id+1)
         tot = hist_all_TT_nExp.GetBinContent(st_id+1)
         try:
-            #eff = float(f)/float(tot)
-            #err_eff = (float(f*nf)/float(tot)**3)**0.5
-            eff = float(f)
-            err_eff = eff**0.5
+            eff = float(f)/float(tot)
+            err_eff = (float(f*nf)/float(tot)**3)**0.5
+            #eff = float(f)
+            #err_eff = eff**0.5
         except:
             eff = -1
             err_eff = 0
@@ -50,33 +55,37 @@ def add_run(run_number, file, datetime = False, alignment_iteration = False):
         #sector = st_sector(name = TT_Map[st_id], run = run_number, efficiency = eff, bias = mean, width = width,
         #                                                  err_efficiency = err_eff, err_bias =width, err_width = hist.GetRMSError())
         #sector.save()
-        st_sector.objects(name = TT_Map[st_id], run = run_number).update_one(set__run = run_number, set__efficiency = eff, set__bias = mean, set__width = width,
-                                                          set__err_efficiency = err_eff, set__err_bias =width, set__err_width = hist.GetRMSError(), upsert = True)
+        st_sector.objects(name = TT_Map[st_id], run = run_number).update_one(set__run = run_number, set__efficiency = 100 * eff, set__bias = 1000 * mean, set__width = 1000 * width,
+                                                          set__err_efficiency = 100 * err_eff, set__err_bias = 1000 * histBIAS.GetMeanError(), set__err_width = 1000 * histRMS.GetRMSError(), 
+                                                          set__n_eff = n_eff, set__n_res = n_res, upsert = True)
         sector = st_sector.objects.get(name = TT_Map[st_id], run = run_number)
         snapshot.append(sector)
     for st_id in IT_Map:
-        hist = hist_all_IT_Mon.ProjectionY(IT_Map[st_id], st_id+1, st_id+1)
-        mean = hist.GetMean()
-        width = hist.GetRMS()
+        histBIAS = hist_all_IT_MonBIAS.ProjectionY(IT_Map[st_id], st_id+1, st_id+1)
+        histRMS = hist_all_IT_MonRMS.ProjectionY(IT_Map[st_id], st_id+1, st_id+1)
+        mean = histBIAS.GetMean()        
+        width = histRMS.GetRMS()
+        n_eff = hist_all_IT_nFound.GetBinContent(st_id+1)
+        n_res = histBIAS.GetEntries()
         f = hist_all_IT_nFound.GetBinContent(st_id+1)
         nf = hist_all_IT_nExp.GetBinContent(st_id+1) -hist_all_IT_nFound.GetBinContent(st_id+1)
         tot = hist_all_IT_nExp.GetBinContent(st_id+1)
         try:
-            #eff = float(f)/float(tot)
-            #err_eff = (float(f*nf)/float(tot)**3)**0.5
-            eff = float(f)
-            err_eff = eff**0.5
+            eff = float(f)/float(tot)
+            err_eff = (float(f*nf)/float(tot)**3)**0.5
+            #eff = float(f)
+            #err_eff = eff**0.5
         except:
             eff = -1
             err_eff = 0
-
-        random.seed(datetime.datetime.now().microsecond)
+        print "Efficiency of "+IT_Map[st_id]+" ("+str(st_id)+") is "+str(eff)+" +/- "+str(err_eff)
         #sector = st_sector(name = IT_Map[st_id], run = run_number, efficiency = eff, bias = mean, width = width,
         #                                                  err_efficiency = err_eff, err_bias =width, err_width = hist.GetRMSError())
         #sector.save()
-        st_sector.objects(name = IT_Map[st_id], run = run_number).update_one(set__run = run_number, set__efficiency = eff, set__bias = mean, set__width = width,
-                                                          set__err_efficiency = err_eff, set__err_bias =width, set__err_width = hist.GetRMSError(), upsert = True)
-        sector = st_sector.objects.get(name = IT_Map[st_id], run = run_number)        
+        st_sector.objects(name = IT_Map[st_id], run = run_number).update_one(set__run = run_number, set__efficiency = 100 * eff, set__bias = 1000 * mean, set__width = 1000 * width,
+                                                          set__err_efficiency = 100 * err_eff, set__err_bias = 1000 * histBIAS.GetMeanError(), set__err_width = 1000 * histRMS.GetRMSError(), 
+                                                          set__n_eff = n_eff, set__n_res = n_res, upsert = True)
+        sector = st_sector.objects.get(name = IT_Map[st_id], run = run_number)
         snapshot.append(sector)
     if (datetime and alignment_iteration):
         st_snapshot.objects(run = run_number).update_one( set__snapshot = snapshot, set__datetime = datetime, set__alignment_iteration = alignment_iteration, upsert = True)
