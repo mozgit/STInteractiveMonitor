@@ -3,9 +3,11 @@ from app.db import db
 from app.models import st_sector, st_snapshot
 import pickle
 from mongoengine import *
+#from app.db_config import *
 
 def find_existing_runs(minr, maxr):
-    client = connect('st_db')
+    #client = connect('st_db', host = db_host, port = db_port)
+    #client = connect('st_db')
     existing_runs = []
     for i in range(minr, maxr+1):
         if st_snapshot.objects(run = i).first():

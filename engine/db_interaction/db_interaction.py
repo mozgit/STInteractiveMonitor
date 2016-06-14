@@ -9,6 +9,8 @@ import pickle
 from mongoengine import *
 from app.models import st_sector, st_snapshot
 from flask.ext.mongoengine import MongoEngine
+from app.db import db
+#from app.db_config import *
 
 def get_info_lite_sector_based(existing_runs):
     #Create dictionary:
@@ -21,8 +23,10 @@ def get_info_lite_sector_based(existing_runs):
     #}
     print "from get_info_lite"
     print existing_runs
-    client = connect('st_db')
-    db = client.st_db
+
+    #client = connect('st_db', host = db_host, port = db_port)
+    #client = connect('st_db')
+    #db = client.st_db
     #f = open('../../engine/NameList.pkl')
     f = open('../engine/NameList.pkl')
     variables = ['width', 'bias', 'efficiency']
@@ -66,8 +70,9 @@ def get_info_lite(existing_runs):
     #                width:[]
     #                err_width:[]}
     #}
-    client = connect('st_db')
-    db = client.st_db
+    #client = connect('st_db', host = db_host, port = db_port)
+    #client = connect('st_db')
+    #db = client.st_db
     f = open('../engine/NameList.pkl')
     NameList = pickle.load(f) 
     variables = ['width', 'bias', 'efficiency']

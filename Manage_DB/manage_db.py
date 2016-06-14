@@ -13,6 +13,7 @@ from Create_Maps import TT_Map as TT_Map_f
 from db_info import find_existing_runs
 from db_info import list_runs
 from AddOneFill import add_run
+#from app.db_config import *
 #from ToyData import fill_random
 
 def fill_random(nNentries=10):
@@ -38,28 +39,29 @@ def fill_random(nNentries=10):
 
 
 def print_content():
-    client = connect('st_db')
+    #client = connect('st_db', host = db_host, port = db_port)
+    #client = connect('st_db')
     for document in st_sector.objects():
         print document.printsector()
     return True
 
 def clear_db():
-    client = connect('st_db')
+    #client = connect('st_db', host = db_host, port = db_port)
     st_sector.drop_collection()
     st_snapshot.drop_collection()
     return True    
 
 
 if __name__ == "__main__":
-    #client = connect('st_db')
+    #client = connect('st_db', host = db_host, port = db_port)
     #dbs = client.st_db
     #fill_random(10)
     #print "Befre clenaing"
     #print_content()
     #print "Cleaning"
-    clear_db()
+    #clear_db()
     #print "After cleaning"
-    #print_content()
+    print_content()
     #add_run(1, "/Users/ilya/TempData/1.root")
     #add_run(2, "/Users/ilya/TempData/2.root")    
     #add_run(3, "/Users/ilya/TempData/3.root")
